@@ -323,15 +323,58 @@ flyctl deploy --remote-only
         weave_init = ""
         if self.wandb_enabled:
             weave_init = """
-# 🐝 Initialize weave for observability (getmethatdawg auto-generated)
+# 🐝 Initialize WANDB and weave for observability (getmethatdawg auto-generated)
 try:
+    import os
+    import wandb
     import weave
-    weave.init('getmethatdawg')
-    print("🐝 Weave observability initialized for project 'getmethatdawg'")
-except ImportError:
-    print("⚠️ Weave not available - install with: pip install weave")
+    
+    print("=" * 60)
+    print("🐝 GETMETHATDAWG OBSERVABILITY INITIALIZATION")
+    print("=" * 60)
+    
+    # Authenticate with WANDB using API key
+    wandb_api_key = os.getenv('WANDB_API_KEY')
+    if wandb_api_key:
+        print(f"🔑 WANDB API Key detected: {wandb_api_key[:10]}...***")
+        print("🐝 Authenticating with WANDB...")
+        
+        # Login to WANDB
+        wandb.login(key=wandb_api_key, relogin=True)
+        print("✅ WANDB authentication successful!")
+        
+        # Initialize weave with WANDB integration
+        project_name = os.getenv('WANDB_PROJECT', 'getmethatdawg')
+        print(f"🐝 Initializing weave for function tracking (project: {project_name})...")
+        weave.init(project_name)
+        print("✅ Weave observability initialized successfully!")
+        
+        # Get current user info
+        try:
+            api = wandb.Api()
+            user = api.viewer
+            print(f"👤 Logged in as: {user.username}")
+            print(f"📊 View your traces at: https://wandb.ai/{user.username}/{project_name}/weave")
+            print("🎯 Every function call will now be tracked automatically!")
+        except:
+            print(f"📊 View your traces at: https://wandb.ai -> {project_name} project")
+        
+        print("=" * 60)
+        print("🚀 OBSERVABILITY READY - Function tracking active!")
+        print("=" * 60)
+        
+    else:
+        print("⚠️ WANDB_API_KEY not found - observability disabled")
+        print("💡 Add WANDB_API_KEY to your .env file to enable tracking")
+        
+except ImportError as e:
+    missing_pkg = "wandb" if "wandb" in str(e) else "weave" 
+    print(f"❌ {missing_pkg} not available - install with: pip install {missing_pkg}")
+    print("💡 getmethatdawg automatically adds these packages when WANDB_API_KEY is detected")
 except Exception as e:
-    print(f"⚠️ Failed to initialize weave: {e}")
+    print(f"❌ Failed to initialize WANDB/weave: {e}")
+    print("💡 Check your WANDB_API_KEY and network connection")
+    print("💡 You can test locally with: wandb login")
 """
         
         template = '''#!/usr/bin/env python3
@@ -347,10 +390,10 @@ from pathlib import Path
 
 # Add the source directory to Python path
 sys.path.insert(0, '/app')
-
-# Import the user's module
-import user_module
 ''' + weave_init + '''
+# Import the user's module (AFTER weave initialization so decorators work)
+import user_module
+
 app = Flask(__name__)
 
 def extract_args_from_request(func, method):
@@ -500,10 +543,10 @@ CMD ["python", "flask_app.py"]
             # Add essential Flask requirements if not present
             essential_reqs = ["flask>=2.0.0", "gunicorn>=20.0.0"]
             
-            # Add weave for observability if WANDB is enabled
+            # Add WANDB/weave for observability if WANDB is enabled
             if self.wandb_enabled:
-                essential_reqs.append("weave")
-                print("🐝 Adding weave to requirements for WANDB observability")
+                essential_reqs.extend(["wandb", "weave"])
+                print("🐝 Adding WANDB/weave to requirements for observability")
             
             lines = custom_reqs.strip().split('\n')
             existing_packages = {line.split('>=')[0].split('==')[0].split('<')[0].lower().strip() 
@@ -528,10 +571,10 @@ CMD ["python", "flask_app.py"]
                 "gunicorn>=20.0.0",
             ]
             
-            # Add weave for observability if WANDB is enabled
+            # Add WANDB/weave for observability if WANDB is enabled
             if self.wandb_enabled:
-                requirements.append("weave")
-                print("🐝 Adding weave to default requirements for WANDB observability")
+                requirements.extend(["wandb", "weave"])
+                print("🐝 Adding WANDB/weave to default requirements for observability")
             
             requirements_path = self.output_dir / "requirements.txt"
             with open(requirements_path, 'w') as f:
@@ -615,6 +658,7 @@ primary_region = "iad"
         # Add weave import at the top if WANDB is enabled
         if self.wandb_enabled:
             processed_lines.append("import weave  # 🐝 Added by getmethatdawg for observability\n")
+            print("  📦 Added weave import for function tracking")
         
         for i, line in enumerate(lines):
             # Skip getmethatdawg imports (only if not auto-detect mode)
@@ -651,7 +695,8 @@ primary_region = "iad"
                 if is_endpoint:
                     # Add the decorator with proper indentation
                     indent = len(line) - len(line.lstrip())
-                    processed_lines.append(' ' * indent + "@weave.op()  # 🐝 Added by getmethatdawg for observability\n")
+                    processed_lines.append(' ' * indent + f"@weave.op()  # 🐝 Function '{func_name}' will be tracked in WANDB\n")
+                    print(f"  🎯 Added @weave.op() decorator to function: {func_name}")
             
             # Add the line
             processed_lines.append(line)

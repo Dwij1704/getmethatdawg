@@ -7,7 +7,7 @@ import inspect
 from typing import Dict, List, Any, Optional, Callable
 from dataclasses import dataclass, field
 
-__version__ = "0.0.2"
+__version__ = "0.0.4"
 
 @dataclass
 class Endpoint:

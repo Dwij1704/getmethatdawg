@@ -1,7 +1,7 @@
 class getmethatdawg < Formula
   desc "Zero-config deploy & MCP for Python agents"
   homepage "https://github.com/getmethatdawg-deploy/getmethatdawg"
-  url "https://github.com/getmethatdawg-deploy/getmethatdawg/archive/v0.1.0.tar.gz"
+  url "https://github.com/getmethatdawg-deploy/getmethatdawg/archive/v0.0.4.tar.gz"
   sha256 "1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef"  # This needs to be updated with actual hash
   license "MIT"
 
