@@ -31,6 +31,23 @@ venv/
 ENV/
 env.bak/
 venv.bak/
+yoo-env/
+test-venv/
+
+# Environment files with credentials
+examples/.env
+examples/storytelling_agent/.env
+**/.env
+
+# Encrypted tokens and sensitive data
+scripts/encrypted_token.txt
+scripts/test_token.txt
+**/encrypted_token*
+**/test_token*
+
+# Pre-authenticated container builds
+.flytoken
+.flytoken.encrypted
 
 # IDE
 .vscode/

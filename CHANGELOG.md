@@ -16,6 +16,57 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Nothing yet
 
+## [1.2.0] - 2024-12-07
+
+### Added
+- 🚀 **Dual Deployment Modes**
+  - **Regular Mode** (default): Uses flyctl + your Fly.io account (existing behavior)
+  - **Pre-authenticated Mode** (`--pre-auth`): Uses pre-authenticated container, no flyctl needed
+  - Smart fallback: If pre-auth container unavailable, falls back to regular mode
+
+- 🔧 **Enhanced Command Line Interface**
+  - New flag: `--pre-auth` for pre-authenticated deployments
+  - Environment variable: `GETMETHATDAWG_MODE=pre-auth` to default to pre-auth mode
+  - Improved help text with clear mode explanations and examples
+  - Better error messages with suggestions for missing dependencies
+
+- 🐳 **Pre-authenticated Container Support**
+  - Secure encrypted credential embedding using Fernet encryption
+  - GitHub Container Registry and Docker Hub support
+  - Automatic container pulling and fallback mechanisms
+  - Zero user setup required for pre-auth mode
+
+- 🛠️ **Setup Tools**
+  - `scripts/encrypt-flyio-token.py` - Secure token encryption utility
+  - `scripts/setup-no-flyctl.sh` - Automated setup for pre-auth mode
+  - `Dockerfile.authenticated-builder` - Pre-authenticated container builder
+  - `docs/NO_FLYCTL_SETUP.md` - Complete implementation guide
+
+### Changed
+- 📦 **Homebrew Formula**
+  - flyctl dependency now optional (only needed for regular mode)
+  - Updated help text and caveats to explain both modes
+  - Separate deployment scripts for regular and pre-auth modes
+  - Improved error messages for missing dependencies
+
+- 🎯 **User Experience**
+  - Same commands work in both modes: `getmethatdawg deploy my_file.py`
+  - Clear mode indication in output logs
+  - Environment detection for optimal experience
+  - Backwards compatible - existing usage continues to work
+
+### Technical Improvements
+- **Argument Parsing**: Robust parsing for multiple flags and options
+- **Container Management**: Smart image pulling with registry fallbacks  
+- **Error Handling**: Graceful degradation and helpful error messages
+- **Security**: Encrypted credentials with PBKDF2 key derivation
+- **Documentation**: Comprehensive setup and usage guides
+
+### Dependencies
+- **Regular Mode**: Docker + flyctl (unchanged)
+- **Pre-auth Mode**: Docker only (new option)
+- **SDK**: No changes to existing SDK usage
+
 ## [1.1.2] - 2024-12-07
 
 ### Fixed

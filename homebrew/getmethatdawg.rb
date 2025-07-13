@@ -1,13 +1,13 @@
 class Getmethatdawg < Formula
   desc "Zero-config deployment for Python AI agents and web services"
   homepage "https://github.com/Dwij1704/getmethatdawg"
-  url "https://github.com/Dwij1704/getmethatdawg/releases/download/v1.1.1/getmethatdawg-source.tar.gz"
-  sha256 "32a8d8cce1aa75201bbe40f6bebe60adfdc67a0ec6909ab4895899956c850949"
+  url "https://github.com/Dwij1704/getmethatdawg/releases/download/v1.2.0/getmethatdawg-source.tar.gz"
+  sha256 "UPDATE_SHA_HERE"
   license "MIT"
 
   depends_on "python@3.11"
   depends_on "docker"
-  depends_on "flyctl"
+  # flyctl is now optional - only needed for regular mode
 
   def install
     # Install Python dependencies
@@ -16,12 +16,12 @@ class Getmethatdawg < Formula
     # Install getmethatdawg-sdk
     system "python3.11", "-m", "pip", "install", "--target", "#{libexec}/lib/python", "-e", "getmethatdawg-sdk/"
     
-    # Create the main getmethatdawg executable
+    # Create the main getmethatdawg executable (unified version with both modes)
     (bin/"getmethatdawg").write <<~EOS
       #!/bin/bash
       
       # getmethatdawg - Zero-config deploy for Python agents
-      # Homebrew installation version
+      # Supports both regular (flyctl) and pre-authenticated modes
       
       set -euo pipefail
       
@@ -54,8 +54,8 @@ class Getmethatdawg < Formula
           echo -e "${RED}✗${NC} $1"
       }
       
-      # Check dependencies
-      check_dependencies() {
+      # Check dependencies for regular mode
+      check_dependencies_regular() {
           local deps_ok=true
           
           if ! command -v docker &> /dev/null; then
@@ -64,7 +64,9 @@ class Getmethatdawg < Formula
           fi
           
           if ! command -v flyctl &> /dev/null; then
-              log_error "flyctl is required but not installed. Please install flyctl."
+              log_error "flyctl is required for regular mode but not installed."
+              log_info "Install flyctl with: brew install flyctl"
+              log_info "Or use pre-auth mode with: --pre-auth (no flyctl needed)"
               deps_ok=false
           fi
           
@@ -78,62 +80,139 @@ class Getmethatdawg < Formula
           fi
       }
       
-             # Show usage
-       show_usage() {
-           cat << EOF
-       getmethatdawg - Zero-config deploy for Python agents
-       
-       Usage:
-           getmethatdawg deploy <python_file>              Deploy a Python file as a web service
-           getmethatdawg deploy <python_file> --auto-detect  Deploy with auto-detection (no decorators needed)
-           getmethatdawg --help                            Show this help message
-           getmethatdawg --version                         Show version information
-       
-       Examples:
-           getmethatdawg deploy my_agent.py                Deploy my_agent.py to the cloud
-           getmethatdawg deploy story_agent.py --auto-detect   Auto-detect endpoints without decorators
+      # Check dependencies for pre-auth mode (Docker only)
+      check_dependencies_preauth() {
+          local deps_ok=true
           
-             The Python file can use the getmethatdawg SDK:
-           import getmethatdawg
-           
-           @getmethatdawg.expose(method="GET", path="/hello")
-           def greet(name: str = "world"):
-               return {"msg": f"Hello {name}"}
-       
-       OR with auto-detection, just write regular Python functions:
-           def greet(name: str = "world"):
-               return {"msg": f"Hello {name}"}
+          if ! command -v docker &> /dev/null; then
+              log_error "Docker is required but not installed. Please install Docker."
+              deps_ok=false
+          fi
+          
+          if ! docker info &> /dev/null; then
+              log_error "Docker is not running. Please start Docker."
+              deps_ok=false
+          fi
+          
+          if [[ "$deps_ok" == false ]]; then
+              exit 1
+          fi
+      }
+      
+      # Show usage
+      show_usage() {
+          cat << EOF
+      getmethatdawg - Zero-config deploy for Python agents
+      
+      Usage:
+          getmethatdawg deploy <python_file>                       Deploy using flyctl (default)
+          getmethatdawg deploy <python_file> --auto-detect         Deploy with auto-detection using flyctl
+          getmethatdawg deploy <python_file> --pre-auth            Deploy using pre-authenticated container
+          getmethatdawg deploy <python_file> --auto-detect --pre-auth  Auto-detect with pre-auth
+          getmethatdawg --help                                     Show this help message
+          getmethatdawg --version                                  Show version information
+      
+      Deployment Modes:
+          Default Mode (requires flyctl):
+              - Uses your local flyctl installation and authentication
+              - Requires: Docker + flyctl + Fly.io account setup
+              - Full control over deployments
+      
+          Pre-authenticated Mode (--pre-auth):
+              - Uses pre-authenticated container with embedded credentials
+              - Requires: Docker only (no flyctl or Fly.io setup needed)
+              - Deployments go to the project maintainer's Fly.io account
+      
+      Examples:
+          getmethatdawg deploy my_agent.py                         # Regular mode
+          getmethatdawg deploy my_agent.py --pre-auth              # Pre-auth mode
+          getmethatdawg deploy story_agent.py --auto-detect        # Regular with auto-detect
+          getmethatdawg deploy story_agent.py --auto-detect --pre-auth  # Pre-auth with auto-detect
+      
+      Environment Variables:
+          GETMETHATDAWG_MODE=pre-auth                              # Default to pre-auth mode
+          
+      The Python file can use the getmethatdawg SDK:
+          import getmethatdawg
+          
+          @getmethatdawg.expose(method="GET", path="/hello")
+          def greet(name: str = "world"):
+              return {"msg": f"Hello {name}"}
+      
+      OR with auto-detection, just write regular Python functions:
+          def greet(name: str = "world"):
+              return {"msg": f"Hello {name}"}
       
       EOF
       }
       
-             # Show version
-       show_version() {
-           echo "getmethatdawg version #{version}"
-           echo "Zero-config deploy for Python agents"
-           echo "Installed via Homebrew"
-       }
+      # Show version
+      show_version() {
+          echo "getmethatdawg version #{version}"
+          echo "Zero-config deploy for Python agents"
+          echo "Supports both regular and pre-authenticated modes"
+          echo "Installed via Homebrew"
+      }
       
-             # Deploy function - delegates to the main deployment script
-       deploy_python_file() {
-           local python_file="$1"
-           local auto_detect_arg="${2:-}"
-           
-           # Use the deployment script from libexec
-           exec "${GETMETHATDAWG_LIBEXEC}/getmethatdawg-deploy.sh" "$python_file" "$auto_detect_arg"
-       }
+      # Parse arguments and determine mode
+      parse_args_and_deploy() {
+          local python_file=""
+          local auto_detect=""
+          local pre_auth=""
+          
+          # Parse arguments
+          for arg in "$@"; do
+              case "$arg" in
+                  --auto-detect)
+                      auto_detect="--auto-detect"
+                      ;;
+                  --pre-auth)
+                      pre_auth="yes"
+                      ;;
+                  -*)
+                      log_error "Unknown option: $arg"
+                      show_usage
+                      exit 1
+                      ;;
+                  *)
+                      if [[ -z "$python_file" ]]; then
+                          python_file="$arg"
+                      else
+                          log_error "Multiple Python files specified: $python_file and $arg"
+                          exit 1
+                      fi
+                      ;;
+              esac
+          done
+          
+          if [[ -z "$python_file" ]]; then
+              log_error "Please specify a Python file to deploy"
+              show_usage
+              exit 1
+          fi
+          
+          # Check environment variable for default mode
+          if [[ -z "$pre_auth" && "${GETMETHATDAWG_MODE:-}" == "pre-auth" ]]; then
+              pre_auth="yes"
+              log_info "Using pre-auth mode (set by GETMETHATDAWG_MODE environment variable)"
+          fi
+          
+          # Deploy based on mode
+          if [[ "$pre_auth" == "yes" ]]; then
+              check_dependencies_preauth
+              "${GETMETHATDAWG_LIBEXEC}/getmethatdawg-deploy-preauth.sh" "$python_file" "$auto_detect"
+          else
+              check_dependencies_regular
+              "${GETMETHATDAWG_LIBEXEC}/getmethatdawg-deploy.sh" "$python_file" "$auto_detect"
+          fi
+      }
       
       # Main function
       main() {
           case "${1:-}" in
               deploy)
-                  if [[ -z "${2:-}" ]]; then
-                      log_error "Please specify a Python file to deploy"
-                      show_usage
-                      exit 1
-                  fi
-                  check_dependencies
-                  deploy_python_file "$2" "${3:-}"
+                  shift
+                  parse_args_and_deploy "$@"
                   ;;
               --help|-h)
                   show_usage
@@ -161,17 +240,43 @@ class Getmethatdawg < Formula
     # Install libexec files
     libexec.install "libexec/getmethatdawg-cli.py"
     
-    # Install the deployment script
+    # Install the deployment scripts (both regular and pre-auth)
     (libexec/"libexec").mkpath
+    
+    # Regular deployment script (same as before)
     (libexec/"libexec"/"getmethatdawg-deploy.sh").write <<~EOS
       #!/bin/bash
       
-      # getmethatdawg deployment script - Homebrew version
-      # This script contains the main deployment logic
+      # getmethatdawg deployment script - Regular mode (flyctl)
+      # This script contains the main deployment logic for regular mode
       
       set -euo pipefail
       
-      source "#{bin}/getmethatdawg"  # Import logging functions
+      # Import logging functions (extract them to avoid circular sourcing)
+      
+      # Colors for output
+      RED='\\033[0;31m'
+      GREEN='\\033[0;32m'
+      YELLOW='\\033[1;33m'
+      BLUE='\\033[0;34m'
+      NC='\\033[0m' # No Color
+      
+      # Logging functions
+      log_info() {
+          echo -e "${BLUE}ℹ${NC} $1"
+      }
+      
+      log_success() {
+          echo -e "${GREEN}✓${NC} $1"
+      }
+      
+      log_warning() {
+          echo -e "${YELLOW}⚠${NC} $1"
+      }
+      
+      log_error() {
+          echo -e "${RED}✗${NC} $1"
+      }
       
       deploy_python_file() {
           local python_file="$1"
@@ -189,7 +294,7 @@ class Getmethatdawg < Formula
               exit 1
           fi
           
-          log_info "Deploying $python_file..."
+          log_info "Deploying $python_file (regular mode - using flyctl)..."
           
           # Create temporary directory for build output
           local temp_dir="$(mktemp -d)"
@@ -198,7 +303,9 @@ class Getmethatdawg < Formula
           
           # Cleanup function
           cleanup() {
-              rm -rf "$temp_dir"
+              if [[ -n "${temp_dir:-}" ]] && [[ -d "${temp_dir:-}" ]]; then
+                  rm -rf "$temp_dir"
+              fi
           }
           trap cleanup EXIT
           
@@ -331,9 +438,139 @@ class Getmethatdawg < Formula
       deploy_python_file "$@"
     EOS
     
+    # Pre-auth deployment script
+    (libexec/"libexec"/"getmethatdawg-deploy-preauth.sh").write <<~EOS
+      #!/bin/bash
+      
+      # getmethatdawg deployment script - Pre-auth mode (no flyctl needed)
+      # This script uses pre-authenticated containers for deployment
+      
+      set -euo pipefail
+      
+      # Colors for output
+      RED='\\033[0;31m'
+      GREEN='\\033[0;32m'
+      YELLOW='\\033[1;33m'
+      BLUE='\\033[0;34m'
+      NC='\\033[0m' # No Color
+      
+      # Logging functions
+      log_info() {
+          echo -e "${BLUE}ℹ${NC} $1"
+      }
+      
+      log_success() {
+          echo -e "${GREEN}✓${NC} $1"
+      }
+      
+      log_warning() {
+          echo -e "${YELLOW}⚠${NC} $1"
+      }
+      
+      log_error() {
+          echo -e "${RED}✗${NC} $1"
+      }
+      
+      deploy_python_file() {
+          local python_file="$1"
+          local auto_detect_arg="${2:-}"
+          local abs_python_file="$(realpath "$python_file")"
+          
+          # Validate input file
+          if [[ ! -f "$abs_python_file" ]]; then
+              log_error "File '$python_file' not found"
+              exit 1
+          fi
+          
+          if [[ ! "$abs_python_file" =~ \\.py$ ]]; then
+              log_error "File '$python_file' is not a Python file"
+              exit 1
+          fi
+          
+          log_info "Deploying $python_file (pre-authenticated mode - no flyctl needed)..."
+          
+          # Create temporary directory for build output
+          local temp_dir="$(mktemp -d)"
+          local output_dir="$temp_dir/out"
+          mkdir -p "$output_dir"
+          
+          # Cleanup function
+          cleanup() {
+              if [[ -n "${temp_dir:-}" ]] && [[ -d "${temp_dir:-}" ]]; then
+                  rm -rf "$temp_dir"
+              fi
+          }
+          trap cleanup EXIT
+          
+          # Use the pre-authenticated builder container
+          log_info "Using pre-authenticated builder container..."
+          
+          # Container image (prioritize GitHub Container Registry)
+          local builder_image="ghcr.io/dwij1704/getmethatdawg-builder:authenticated"
+          
+          # Check if we need to pull the latest image
+          if ! docker image inspect "$builder_image" &> /dev/null; then
+              log_info "Pulling pre-authenticated builder container..."
+              if ! docker pull "$builder_image" 2>/dev/null; then
+                  log_warning "Failed to pull from GitHub Container Registry, trying Docker Hub..."
+                  builder_image="getmethatdawg/builder:authenticated"
+                  if ! docker pull "$builder_image" 2>/dev/null; then
+                      log_error "Failed to pull pre-authenticated container. Please ensure it's available."
+                      log_info "To use pre-auth mode, the project maintainer needs to build and push the authenticated container."
+                      exit 1
+                  fi
+              fi
+          fi
+          
+          # Check if auto-detect flag is passed
+          auto_detect_flag=""
+          if [[ "$auto_detect_arg" == "--auto-detect" ]]; then
+              auto_detect_flag="--auto-detect"
+              log_info "Auto-detection mode enabled"
+          fi
+          
+          # Check for additional files in the same directory
+          local source_dir="$(dirname "$abs_python_file")"
+          local requirements_file="$source_dir/requirements.txt"
+          local env_file="$source_dir/.env"
+          local docker_volumes="-v $abs_python_file:/tmp/source.py:ro -v $output_dir:/tmp/out"
+          
+          if [[ -f "$requirements_file" ]]; then
+              log_info "Found custom requirements.txt, including in deployment"
+              docker_volumes="$docker_volumes -v $requirements_file:/tmp/requirements.txt:ro"
+          fi
+          
+          if [[ -f "$env_file" ]]; then
+              log_info "Found .env file, including for secrets management"
+              docker_volumes="$docker_volumes -v $env_file:/tmp/.env:ro"
+          fi
+          
+          # Run the pre-authenticated builder container
+          log_info "Building and deploying with pre-authenticated container..."
+          docker run --rm \\
+              $docker_volumes \\
+              "$builder_image" /tmp/source.py "$(basename "$python_file" .py)" $auto_detect_flag
+          
+          # The container handles everything including deployment!
+          log_success "Deployment completed using pre-authenticated container!"
+          
+          # Try to determine the app URL
+          local app_name="$(basename "$python_file" .py | tr '_' '-')"
+          local app_url="$app_name.fly.dev"
+          
+          echo -e "${GREEN}🌐 https://$app_url${NC}"
+          log_info "Your app should be available at the URL above"
+          log_info "If this is a new deployment, it may take a few minutes to become available"
+      }
+      
+      # Execute the deployment
+      deploy_python_file "$@"
+    EOS
+    
     # Make scripts executable
     chmod 0755, bin/"getmethatdawg"
     chmod 0755, libexec/"libexec"/"getmethatdawg-deploy.sh"
+    chmod 0755, libexec/"libexec"/"getmethatdawg-deploy-preauth.sh"
     
     # Install completions for bash and zsh
     bash_completion.install "scripts/completions/getmethatdawg.bash" => "getmethatdawg"
@@ -344,18 +581,31 @@ class Getmethatdawg < Formula
     <<~EOS
       getmethatdawg has been installed! 🚀
       
-      To get started:
+      Two deployment modes available:
+      
+      1. Regular Mode (default):
+         - Requires: Docker + flyctl + Fly.io account
+         - Full control over your deployments
+         - Usage: getmethatdawg deploy my_agent.py
+      
+      2. Pre-authenticated Mode:
+         - Requires: Docker only (no flyctl or Fly.io setup)
+         - Deployments go to project maintainer's account
+         - Usage: getmethatdawg deploy my_agent.py --pre-auth
+      
+      Quick Start:
         1. Make sure Docker is running
-        2. Install flyctl if you haven't: brew install flyctl
-        3. Create a Python file with functions
-        4. Deploy with: getmethatdawg deploy my_agent.py --auto-detect
+        2. For regular mode: Install flyctl with 'brew install flyctl'
+        3. For pre-auth mode: No additional setup needed!
+        4. Deploy: getmethatdawg deploy my_agent.py --auto-detect
       
       For examples and documentation:
         - GitHub: https://github.com/Dwij1704/getmethatdawg
         - Examples: #{libexec}/examples/
         - Docs: #{libexec}/docs/
       
-      Note: First deployment will download and build the getmethatdawg/builder Docker image.
+      Environment Variables:
+        - GETMETHATDAWG_MODE=pre-auth  # Default to pre-auth mode
     EOS
   end
 

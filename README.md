@@ -280,6 +280,22 @@ MIT License - see [LICENSE](LICENSE) file for details.
 - **Data Science Team** - Turned Jupyter notebooks into production APIs in minutes
 - **Startup MVP** - Launched AI-powered product in 24 hours
 
+### Environment Variables
+
+For AI agents that require API keys, create a `.env` file in your project directory:
+
+```bash
+# Copy the template and fill in your values
+cp examples/.env.template .env
+```
+
+Common environment variables:
+- `OPENAI_API_KEY` - OpenAI API key for GPT models
+- `CREWAI_API_KEY` - CrewAI API key (if using CrewAI)
+- `ANTHROPIC_API_KEY` - Anthropic API key for Claude models
+
+**Security Note**: Never commit `.env` files to version control. They are automatically ignored by getmethatdawg.
+
 ### Community Examples
 - [AI Writing Assistant](examples/writing_assistant/) - GPT-powered content generator
 - [Data Analysis API](examples/data_analysis/) - Pandas/NumPy data processing

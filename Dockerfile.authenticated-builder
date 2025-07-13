@@ -1,0 +1,44 @@
+FROM python:3.11-slim
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    curl \
+    bash \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install flyctl
+RUN curl -L https://fly.io/install.sh | sh
+ENV PATH="/root/.fly/bin:$PATH"
+
+WORKDIR /opt/getmethatdawg
+
+# Copy the getmethatdawg-sdk
+COPY getmethatdawg-sdk/ ./getmethatdawg-sdk/
+
+# Install getmethatdawg-sdk
+RUN cd getmethatdawg-sdk && pip install -e .
+
+# Copy libexec
+COPY libexec/ ./libexec/
+
+# Install additional deployment dependencies
+RUN pip install cryptography flask gunicorn python-dotenv
+
+# Copy authentication script
+COPY scripts/auth-setup.sh ./auth-setup.sh
+RUN chmod +x ./auth-setup.sh
+
+# Set up the entry point
+COPY bin/getmethatdawg-builder /opt/getmethatdawg/bin/
+RUN chmod +x /opt/getmethatdawg/bin/getmethatdawg-builder
+
+ENV PATH="/opt/getmethatdawg/bin:$PATH"
+
+# Pre-authenticate with encrypted token (will be set at build time)
+ARG FLY_API_TOKEN_ENCRYPTED
+ENV FLY_API_TOKEN_ENCRYPTED=$FLY_API_TOKEN_ENCRYPTED
+ENV DECRYPT_KEY="getmethatdawg-deploy-key-v1"
+
+# Run auth setup on container start
+ENTRYPOINT ["./auth-setup.sh"]
+CMD ["/opt/getmethatdawg/bin/getmethatdawg-builder"] 
