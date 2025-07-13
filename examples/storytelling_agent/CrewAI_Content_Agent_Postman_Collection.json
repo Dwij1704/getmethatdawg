@@ -1,7 +1,7 @@
 {
   "info": {
     "name": "CrewAI Content Creation Agent API",
-    "description": "Complete API collection for the CrewAI Content Creation Agent deployed with yoo. This collection includes all 10 auto-detected endpoints with sample requests and responses.",
+    "description": "Complete API collection for the CrewAI Content Creation Agent deployed with getmethatdawg. This collection includes all 10 auto-detected endpoints with sample requests and responses.",
     "version": "1.0.0",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
@@ -39,7 +39,7 @@
           },
           "status": "OK",
           "code": 200,
-          "body": "{\n  \"endpoints\": [\n    {\"method\": \"GET\", \"path\": \"/get-environment-status\"},\n    {\"method\": \"GET\", \"path\": \"/get-crew-info\"},\n    {\"method\": \"POST\", \"path\": \"/create-content-request\"}\n  ],\n  \"service\": \"yoo-deployed-app\",\n  \"status\": \"healthy\"\n}"
+          "body": "{\n  \"endpoints\": [\n    {\"method\": \"GET\", \"path\": \"/get-environment-status\"},\n    {\"method\": \"GET\", \"path\": \"/get-crew-info\"},\n    {\"method\": \"POST\", \"path\": \"/create-content-request\"}\n  ],\n  \"service\": \"getmethatdawg-deployed-app\",\n  \"status\": \"healthy\"\n}"
         }
       ]
     },

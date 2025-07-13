@@ -103,7 +103,7 @@ package: build ## Create release packages
 		--exclude='*.pyc' \
 		--exclude='__pycache__' \
 		--exclude='.git' \
-		--exclude='yoo-env' \
+		--exclude='getmethatdawg-env' \
 		--exclude='build' \
 		--exclude='dist' \
 		bin/ getmethatdawg-sdk/ libexec/ examples/ docs/ scripts/ \

@@ -1,12 +1,12 @@
 #!/bin/bash
 
-# yoo-builder - Builder script for inside Docker container
-# Usage: yoo-builder <source_file> [original_name] [--auto-detect]
+# getmethatdawg-builder - Builder script for inside Docker container
+# Usage: getmethatdawg-builder <source_file> [original_name] [--auto-detect]
 
 set -euo pipefail
 
 if [[ $# -lt 1 || $# -gt 3 ]]; then
-    echo "Usage: yoo-builder <source_file> [original_name] [--auto-detect]"
+    echo "Usage: getmethatdawg-builder <source_file> [original_name] [--auto-detect]"
     exit 1
 fi
 
@@ -37,4 +37,4 @@ if [[ -n "$auto_detect" ]]; then
     args+=("$auto_detect")
 fi
 
-exec python -m yoo.builder "${args[@]}" 
+exec python -m getmethatdawg.builder "${args[@]}" 
