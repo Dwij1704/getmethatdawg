@@ -119,7 +119,7 @@ homebrew: ## Create homebrew formula (requires git repository)
 	@echo "  2. Copy homebrew/getmethatdawg.rb to your tap repository"
 	@echo "  3. Update the URL and SHA256 in the formula"
 	@echo "  4. Users can then install with:"
-	@echo "     brew tap yourusername/getmethatdawg"
+	@echo "     brew tap Dwij1704/getmethatdawg"
 	@echo "     brew install getmethatdawg"
 
 docs: ## Generate documentation
@@ -233,11 +233,11 @@ help-install: ## Show installation help
 	@echo "$(BLUE)Installation Options:$(NC)"
 	@echo ""
 	@echo "🍺 Homebrew (Recommended):"
-	@echo "   brew tap yourusername/getmethatdawg"
+	@echo "   brew tap Dwij1704/getmethatdawg"
 	@echo "   brew install getmethatdawg"
 	@echo ""
 	@echo "📦 Manual Installation:"
-	@echo "   git clone https://github.com/yourusername/getmethatdawg.git"
+	@echo "   git clone https://github.com/Dwij1704/getmethatdawg.git"
 	@echo "   cd getmethatdawg"
 	@echo "   make install"
 	@echo ""

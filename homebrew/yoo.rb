@@ -1,7 +1,7 @@
-class Getmethatdawg < Formula
+class Yoo < Formula
   desc "Zero-config deployment for Python AI agents and web services"
-  homepage "https://github.com/Dwij1704/getmethatdawg"
-  url "https://github.com/Dwij1704/getmethatdawg.git"
+  homepage "https://github.com/Dwij1704/yoo"
+  url "https://github.com/Dwij1704/yoo.git"
   version "0.1.0"
   sha256 ""
   license "MIT"
@@ -12,24 +12,24 @@ class Getmethatdawg < Formula
 
   def install
     # Install Python dependencies
-    system "python3.11", "-m", "pip", "install", "--target", "#{libexec}/lib/python", "-r", "getmethatdawg-sdk/requirements.txt"
+    system "python3.11", "-m", "pip", "install", "--target", "#{libexec}/lib/python", "-r", "yoo-sdk/requirements.txt"
     
-    # Install getmethatdawg-sdk
-    system "python3.11", "-m", "pip", "install", "--target", "#{libexec}/lib/python", "-e", "getmethatdawg-sdk/"
+    # Install yoo-sdk
+    system "python3.11", "-m", "pip", "install", "--target", "#{libexec}/lib/python", "-e", "yoo-sdk/"
     
-    # Create the main getmethatdawg executable
-    (bin/"getmethatdawg").write <<~EOS
+    # Create the main yoo executable
+    (bin/"yoo").write <<~EOS
       #!/bin/bash
       
-      # getmethatdawg - Zero-config deploy for Python agents
+      # yoo - Zero-config deploy for Python agents
       # Homebrew installation version
       
       set -euo pipefail
       
-      # Set up Python path to find getmethatdawg modules
+      # Set up Python path to find yoo modules
       export PYTHONPATH="#{libexec}/lib/python:$PYTHONPATH"
-      export GETMETHATDAWG_HOME="#{libexec}"
-      export GETMETHATDAWG_LIBEXEC="#{libexec}/libexec"
+      export YOO_HOME="#{libexec}"
+      export YOO_LIBEXEC="#{libexec}/libexec"
       
       # Colors for output
       RED='\\033[0;31m'
@@ -79,50 +79,50 @@ class Getmethatdawg < Formula
           fi
       }
       
-             # Show usage
-       show_usage() {
-           cat << EOF
-       getmethatdawg - Zero-config deploy for Python agents
-       
-       Usage:
-           getmethatdawg deploy <python_file>              Deploy a Python file as a web service
-           getmethatdawg deploy <python_file> --auto-detect  Deploy with auto-detection (no decorators needed)
-           getmethatdawg --help                            Show this help message
-           getmethatdawg --version                         Show version information
-       
-       Examples:
-           getmethatdawg deploy my_agent.py                Deploy my_agent.py to the cloud
-           getmethatdawg deploy story_agent.py --auto-detect   Auto-detect endpoints without decorators
+      # Show usage
+      show_usage() {
+          cat << EOF
+      yoo - Zero-config deploy for Python agents
+      
+      Usage:
+          yoo deploy <python_file>              Deploy a Python file as a web service
+          yoo deploy <python_file> --auto-detect  Deploy with auto-detection (no decorators needed)
+          yoo --help                            Show this help message
+          yoo --version                         Show version information
+      
+      Examples:
+          yoo deploy my_agent.py                Deploy my_agent.py to the cloud
+          yoo deploy story_agent.py --auto-detect   Auto-detect endpoints without decorators
           
-             The Python file can use the getmethatdawg SDK:
-           import getmethatdawg
-           
-           @getmethatdawg.expose(method="GET", path="/hello")
-           def greet(name: str = "world"):
-               return {"msg": f"Hello {name}"}
-       
-       OR with auto-detection, just write regular Python functions:
-           def greet(name: str = "world"):
-               return {"msg": f"Hello {name}"}
+      The Python file can use the yoo SDK:
+          import yoo
+          
+          @yoo.expose(method="GET", path="/hello")
+          def greet(name: str = "world"):
+              return {"msg": f"Hello {name}"}
+      
+      OR with auto-detection, just write regular Python functions:
+          def greet(name: str = "world"):
+              return {"msg": f"Hello {name}"}
       
       EOF
       }
       
-             # Show version
-       show_version() {
-           echo "getmethatdawg version #{version}"
-           echo "Zero-config deploy for Python agents"
-           echo "Installed via Homebrew"
-       }
+      # Show version
+      show_version() {
+          echo "yoo version #{version}"
+          echo "Zero-config deploy for Python agents"
+          echo "Installed via Homebrew"
+      }
       
-             # Deploy function - delegates to the main deployment script
-       deploy_python_file() {
-           local python_file="$1"
-           local auto_detect_arg="${2:-}"
-           
-           # Use the deployment script from libexec
-           exec "${GETMETHATDAWG_LIBEXEC}/getmethatdawg-deploy.sh" "$python_file" "$auto_detect_arg"
-       }
+      # Deploy function - delegates to the main deployment script
+      deploy_python_file() {
+          local python_file="$1"
+          local auto_detect_arg="${2:-}"
+          
+          # Use the deployment script from libexec
+          exec "${YOO_LIBEXEC}/yoo-deploy.sh" "$python_file" "$auto_detect_arg"
+      }
       
       # Main function
       main() {
@@ -160,19 +160,19 @@ class Getmethatdawg < Formula
     EOS
     
     # Install libexec files
-    libexec.install "libexec/getmethatdawg-cli.py"
+    libexec.install "libexec/yoo-cli.py"
     
     # Install the deployment script
     (libexec/"libexec").mkpath
-    (libexec/"libexec"/"getmethatdawg-deploy.sh").write <<~EOS
+    (libexec/"libexec"/"yoo-deploy.sh").write <<~EOS
       #!/bin/bash
       
-      # getmethatdawg deployment script - Homebrew version
+      # yoo deployment script - Homebrew version
       # This script contains the main deployment logic
       
       set -euo pipefail
       
-      source "#{bin}/getmethatdawg"  # Import logging functions
+      source "#{bin}/yoo"  # Import logging functions
       
       deploy_python_file() {
           local python_file="$1"
@@ -206,38 +206,38 @@ class Getmethatdawg < Formula
           # Use the builder container to process the Python file
           log_info "Analyzing Python file..."
           
-                     # Check if getmethatdawg/builder image exists, if not build it
-           if ! docker image inspect getmethatdawg/builder:latest &> /dev/null; then
-               log_warning "Builder image 'getmethatdawg/builder:latest' not found."
-               log_info "Building getmethatdawg/builder image..."
-               
-               # Build the builder image from libexec
-               docker build -t getmethatdawg/builder:latest -f - "#{libexec}" << 'EOF'
+          # Check if yoo/builder image exists, if not build it
+          if ! docker image inspect yoo/builder:latest &> /dev/null; then
+              log_warning "Builder image 'yoo/builder:latest' not found."
+              log_info "Building yoo/builder image..."
+              
+              # Build the builder image from libexec
+              docker build -t yoo/builder:latest -f - "#{libexec}" << 'EOF'
       FROM python:3.11-slim
       
-             WORKDIR /opt/getmethatdawg
-       
-       # Copy the getmethatdawg-sdk
-       COPY lib/python/getmethatdawg/ ./getmethatdawg-sdk/getmethatdawg/
-       COPY lib/python/getmethatdawg_sdk-0.1.0.dist-info/ ./getmethatdawg-sdk/getmethatdawg_sdk.dist-info/
-       
-       # Install getmethatdawg-sdk dependencies
-       RUN pip install flask gunicorn
-       
-       # Copy libexec
-       COPY libexec/ ./libexec/
-       
-       # Set up the entry point - use Python to call the builder
-       RUN echo '#!/usr/bin/env python3' > /opt/getmethatdawg/bin/getmethatdawg-builder
-       RUN echo 'import sys' >> /opt/getmethatdawg/bin/getmethatdawg-builder
-       RUN echo 'sys.path.insert(0, "/opt/getmethatdawg")' >> /opt/getmethatdawg/bin/getmethatdawg-builder
-       RUN echo 'from getmethatdawg.builder import main' >> /opt/getmethatdawg/bin/getmethatdawg-builder
-       RUN echo 'main()' >> /opt/getmethatdawg/bin/getmethatdawg-builder
-       RUN chmod +x /opt/getmethatdawg/bin/getmethatdawg-builder
-       
-       ENV PATH="/opt/getmethatdawg/bin:$PATH"
-       
-       ENTRYPOINT ["/opt/getmethatdawg/bin/getmethatdawg-builder"]
+      WORKDIR /opt/yoo
+      
+      # Copy the yoo-sdk
+      COPY lib/python/yoo/ ./yoo-sdk/yoo/
+      COPY lib/python/yoo_sdk-0.1.0.dist-info/ ./yoo-sdk/yoo_sdk.dist-info/
+      
+      # Install yoo-sdk dependencies
+      RUN pip install flask gunicorn
+      
+      # Copy libexec
+      COPY libexec/ ./libexec/
+      
+      # Set up the entry point - use Python to call the builder
+      RUN echo '#!/usr/bin/env python3' > /opt/yoo/bin/yoo-builder
+      RUN echo 'import sys' >> /opt/yoo/bin/yoo-builder
+      RUN echo 'sys.path.insert(0, "/opt/yoo")' >> /opt/yoo/bin/yoo-builder
+      RUN echo 'from yoo.builder import main' >> /opt/yoo/bin/yoo-builder
+      RUN echo 'main()' >> /opt/yoo/bin/yoo-builder
+      RUN chmod +x /opt/yoo/bin/yoo-builder
+      
+      ENV PATH="/opt/yoo/bin:$PATH"
+      
+      ENTRYPOINT ["/opt/yoo/bin/yoo-builder"]
       EOF
           fi
           
@@ -267,9 +267,9 @@ class Getmethatdawg < Formula
               docker_volumes="$docker_volumes -v $env_file:/tmp/.env:ro"
           fi
           
-                     docker run --rm \\
-               $docker_volumes \\
-               getmethatdawg/builder:latest /tmp/source.py "$(basename "$python_file" .py)" $auto_detect_flag
+          docker run --rm \\
+              $docker_volumes \\
+              yoo/builder:latest /tmp/source.py "$(basename "$python_file" .py)" $auto_detect_flag
           
           # Check if build was successful
           if [[ ! -f "$output_dir/flask_app.py" ]]; then
@@ -333,38 +333,38 @@ class Getmethatdawg < Formula
     EOS
     
     # Make scripts executable
-    chmod 0755, bin/"getmethatdawg"
-    chmod 0755, libexec/"libexec"/"getmethatdawg-deploy.sh"
+    chmod 0755, bin/"yoo"
+    chmod 0755, libexec/"libexec"/"yoo-deploy.sh"
     
     # Install completions for bash and zsh
-    bash_completion.install "scripts/completions/getmethatdawg.bash" => "getmethatdawg"
-    zsh_completion.install "scripts/completions/_getmethatdawg"
+    bash_completion.install "scripts/completions/yoo.bash" => "yoo"
+    zsh_completion.install "scripts/completions/_yoo"
   end
 
   def caveats
     <<~EOS
-      getmethatdawg has been installed! 🚀
+      yoo has been installed! 🚀
       
       To get started:
         1. Make sure Docker is running
         2. Install flyctl if you haven't: brew install flyctl
         3. Create a Python file with functions
-        4. Deploy with: getmethatdawg deploy my_agent.py --auto-detect
+        4. Deploy with: yoo deploy my_agent.py --auto-detect
       
       For examples and documentation:
-        - GitHub: https://github.com/Dwij1704/getmethatdawg
+        - GitHub: https://github.com/Dwij1704/yoo
         - Examples: #{libexec}/examples/
         - Docs: #{libexec}/docs/
       
-      Note: First deployment will download and build the getmethatdawg/builder Docker image.
+      Note: First deployment will download and build the yoo/builder Docker image.
     EOS
   end
 
   test do
-    # Test that the getmethatdawg command works
-    assert_match "getmethatdawg version", shell_output("#{bin}/getmethatdawg --version")
+    # Test that the yoo command works
+    assert_match "yoo version", shell_output("#{bin}/yoo --version")
     
     # Test that Python path is set up correctly
-    system "python3.11", "-c", "import getmethatdawg; print('getmethatdawg SDK imported successfully')"
+    system "python3.11", "-c", "import yoo; print('yoo SDK imported successfully')"
   end
 end 

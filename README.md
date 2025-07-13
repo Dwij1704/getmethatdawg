@@ -38,13 +38,13 @@ getmethatdawg deploy my_agent.py --auto-detect
 
 #### via Homebrew (Recommended)
 ```bash
-brew tap yourusername/getmethatdawg
+brew tap Dwij1704/getmethatdawg
 brew install getmethatdawg
 ```
 
 #### Manual Installation
 ```bash
-git clone https://github.com/yourusername/getmethatdawg.git
+git clone https://github.com/Dwij1704/getmethatdawg.git
 cd getmethatdawg
 make install
 ```
@@ -271,7 +271,7 @@ MIT License - see [LICENSE](LICENSE) file for details.
 
 ## 🌟 Star History
 
-[![Star History Chart](https://api.star-history.com/svg?repos=yourusername/getmethatdawg&type=Date)](https://star-history.com/#yourusername/getmethatdawg&Date)
+[![Star History Chart](https://api.star-history.com/svg?repos=Dwij1704/getmethatdawg&type=Date)](https://star-history.com/#Dwij1704/getmethatdawg&Date)
 
 ## 🎉 Showcase
 
@@ -289,4 +289,4 @@ MIT License - see [LICENSE](LICENSE) file for details.
 
 **Made with ❤️ for Python developers who want to focus on building, not deploying.**
 
-[⭐ Star us on GitHub](https://github.com/yourusername/getmethatdawg) | [📖 Read the Docs](https://getmethatdawg.dev) | [💬 Join Discord](https://discord.gg/getmethatdawg) 
+[⭐ Star us on GitHub](https://github.com/Dwij1704/getmethatdawg) | [📖 Read the Docs](https://getmethatdawg.dev) | [💬 Join Discord](https://discord.gg/getmethatdawg) 

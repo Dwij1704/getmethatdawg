@@ -7,7 +7,7 @@ Thank you for your interest in contributing to GetMeThatDawg! This document prov
 1. **Fork the repository** on GitHub
 2. **Clone your fork** locally:
    ```bash
-   git clone https://github.com/yourusername/getmethatdawg.git
+   git clone https://github.com/Dwij1704/getmethatdawg.git
    cd getmethatdawg
    ```
 3. **Set up development environment**:
@@ -31,7 +31,7 @@ Thank you for your interest in contributing to GetMeThatDawg! This document prov
 ### Setting Up
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/getmethatdawg.git
+git clone https://github.com/Dwij1704/getmethatdawg.git
 cd getmethatdawg
 
 # Set up development environment

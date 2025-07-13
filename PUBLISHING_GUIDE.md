@@ -29,8 +29,8 @@ git init
 git add .
 git commit -m "feat: initial release of getmethatdawg v0.1.0"
 
-# Add GitHub repository as origin (replace yourusername)
-git remote add origin https://github.com/yourusername/getmethatdawg.git
+# Add GitHub repository as origin (replace Dwij1704)
+git remote add origin https://github.com/Dwij1704/getmethatdawg.git
 git branch -M main
 git push -u origin main
 ```
@@ -61,8 +61,8 @@ Update `homebrew/getmethatdawg.rb` with real URLs:
 ```ruby
 class Getmethatdawg < Formula
   desc "Zero-config deployment for Python AI agents and web services"
-  homepage "https://github.com/yourusername/getmethatdawg"
-  url "https://github.com/yourusername/getmethatdawg/releases/download/v0.1.0/getmethatdawg-source.tar.gz"
+  homepage "https://github.com/Dwij1704/getmethatdawg"
+  url "https://github.com/Dwij1704/getmethatdawg/releases/download/v0.1.0/getmethatdawg-source.tar.gz"
   sha256 "PUT_ACTUAL_SHA256_HERE"
   license "MIT"
   
@@ -73,7 +73,7 @@ class Getmethatdawg < Formula
 
 ```bash
 # Clone your homebrew tap repository
-git clone https://github.com/yourusername/homebrew-getmethatdawg.git
+git clone https://github.com/Dwij1704/homebrew-getmethatdawg.git
 cd homebrew-getmethatdawg
 
 # Create Formula directory
@@ -92,7 +92,7 @@ git push origin main
 
 ```bash
 # Add your tap
-brew tap yourusername/getmethatdawg
+brew tap Dwij1704/getmethatdawg
 
 # Install your package
 brew install getmethatdawg
@@ -106,13 +106,13 @@ getmethatdawg --version
 Once published, users can install with:
 
 ```bash
-brew tap yourusername/getmethatdawg
+brew tap Dwij1704/getmethatdawg
 brew install getmethatdawg
 ```
 
 Or in one command:
 ```bash
-brew install yourusername/getmethatdawg/getmethatdawg
+brew install Dwij1704/getmethatdawg/getmethatdawg
 ```
 
 ## 📋 Pre-Publishing Checklist
@@ -133,7 +133,7 @@ brew install yourusername/getmethatdawg/getmethatdawg
 
 # 1. Push main project
 git init && git add . && git commit -m "initial release"
-git remote add origin https://github.com/yourusername/getmethatdawg.git
+git remote add origin https://github.com/Dwij1704/getmethatdawg.git
 git push -u origin main
 
 # 2. Create release
@@ -145,14 +145,14 @@ shasum -a 256 dist/getmethatdawg-source.tar.gz
 # 4. Update formula URLs and SHA256 in homebrew/getmethatdawg.rb
 
 # 5. Set up tap
-git clone https://github.com/yourusername/homebrew-getmethatdawg.git
+git clone https://github.com/Dwij1704/homebrew-getmethatdawg.git
 cd homebrew-getmethatdawg
 mkdir Formula
 cp /path/to/homebrew/getmethatdawg.rb Formula/
 git add . && git commit -m "add formula" && git push
 
 # 6. Test installation
-brew tap yourusername/getmethatdawg
+brew tap Dwij1704/getmethatdawg
 brew install getmethatdawg
 ```
 

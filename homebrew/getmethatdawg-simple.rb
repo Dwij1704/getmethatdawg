@@ -1,6 +1,6 @@
 class GetmethatdawgSimple < Formula
   desc "Zero-config deployment for Python AI agents and web services (LOCAL TEST)"
-  homepage "https://github.com/yourusername/getmethatdawg"
+  homepage "https://github.com/Dwij1704/getmethatdawg"
   url "https://github.com/Homebrew/brew/tarball/master"  # Dummy URL, we won't use it
   version "0.1.0"
   license "MIT"

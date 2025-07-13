@@ -256,7 +256,7 @@ show_post_install() {
     echo "📚 Resources:"
     echo "  - Documentation: $GETMETHATDAWG_HOME/docs/"
     echo "  - Examples: $GETMETHATDAWG_HOME/examples/"
-    echo "  - GitHub: https://github.com/yourusername/getmethatdawg"
+    echo "  - GitHub: https://github.com/Dwij1704/getmethatdawg"
     echo ""
     echo "🆘 Need help? Run: getmethatdawg --help"
 }

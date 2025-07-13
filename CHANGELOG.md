@@ -134,7 +134,7 @@ This is the initial release of GetMeThatDawg, introducing a revolutionary approa
 - Docker must be running for builds
 
 ### Contributors
-- @yourusername - Project creator and maintainer
+- @Dwij1704 - Project creator and maintainer
 
 ---
 
@@ -161,8 +161,8 @@ This is the initial release of GetMeThatDawg, introducing a revolutionary approa
 ---
 
 ## Links
-- [GitHub Repository](https://github.com/yourusername/getmethatdawg)
-- [Documentation](https://github.com/yourusername/getmethatdawg/tree/main/docs)
-- [Examples](https://github.com/yourusername/getmethatdawg/tree/main/examples)
-- [Issues](https://github.com/yourusername/getmethatdawg/issues)
-- [Discussions](https://github.com/yourusername/getmethatdawg/discussions) 
+- [GitHub Repository](https://github.com/Dwij1704/getmethatdawg)
+- [Documentation](https://github.com/Dwij1704/getmethatdawg/tree/main/docs)
+- [Examples](https://github.com/Dwij1704/getmethatdawg/tree/main/examples)
+- [Issues](https://github.com/Dwij1704/getmethatdawg/issues)
+- [Discussions](https://github.com/Dwij1704/getmethatdawg/discussions) 

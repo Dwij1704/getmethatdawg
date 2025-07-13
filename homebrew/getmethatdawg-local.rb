@@ -1,6 +1,6 @@
 class GetmethatdawgLocal < Formula
   desc "Zero-config deployment for Python AI agents and web services"
-  homepage "https://github.com/yourusername/getmethatdawg"
+  homepage "https://github.com/Dwij1704/getmethatdawg"
   # For local testing, we'll use the current directory
   url "file://#{Dir.pwd}"
   version "0.1.0"
