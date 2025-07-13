@@ -77,6 +77,236 @@ check_dependencies_preauth() {
     fi
 }
 
+# Interactive function to create requirements.txt if missing
+prompt_create_requirements() {
+    local source_dir="$1"
+    local python_file="$2"
+    local requirements_file="$source_dir/requirements.txt"
+    
+    if [[ ! -f "$requirements_file" ]]; then
+        log_warning "No requirements.txt found in $(basename "$source_dir")"
+        echo "🤔 Would you like to auto-generate a requirements.txt file?"
+        echo "   This will analyze your Python file for imports and create a basic requirements.txt"
+        echo ""
+        read -p "   Generate requirements.txt? (y/N): " -n 1 -r
+        echo ""
+        
+        if [[ $REPLY =~ ^[Yy]$ ]]; then
+            log_info "Analyzing Python imports..."
+            
+            # Extract imports from Python file
+            local imports=$(python3 -c "
+import ast
+import sys
+
+try:
+    with open('$python_file', 'r') as f:
+        tree = ast.parse(f.read())
+    
+    imports = set()
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Import):
+            for alias in node.names:
+                imports.add(alias.name.split('.')[0])
+        elif isinstance(node, ast.ImportFrom):
+            if node.module:
+                imports.add(node.module.split('.')[0])
+    
+    # Filter out standard library modules
+    stdlib_modules = {'os', 'sys', 'json', 'datetime', 'time', 'random', 'math', 're', 'collections', 'functools', 'itertools', 'pathlib', 'typing', 'uuid', 'hashlib', 'base64', 'urllib', 'http', 'socket', 'threading', 'multiprocessing', 'asyncio', 'logging', 'unittest', 'argparse', 'configparser', 'csv', 'sqlite3', 'pickle', 'tempfile', 'shutil', 'glob', 'fnmatch', 'tarfile', 'zipfile', 'gzip', 'zlib', 'email', 'mimetypes', 'html', 'xml', 'io', 'struct', 'codecs', 'locale', 'calendar', 'heapq', 'bisect', 'array', 'weakref', 'copy', 'pprint', 'reprlib', 'enum', 'decimal', 'fractions', 'statistics', 'string', 'textwrap', 'unicodedata', 'stringprep', 'readline', 'rlcompleter', 'warnings', 'contextlib', 'abc', 'atexit', 'traceback', 'gc', 'inspect', 'site', 'imp', 'importlib', 'keyword', 'pkgutil', 'modulefinder', 'runpy', 'types', 'builtins'}
+    
+    third_party = [imp for imp in imports if imp not in stdlib_modules and not imp.startswith('_')]
+    
+    for imp in sorted(third_party):
+        print(imp)
+except Exception as e:
+    print(f'# Error analyzing imports: {e}', file=sys.stderr)
+" 2>/dev/null)
+            
+            # Create requirements.txt
+            if [[ -n "$imports" ]]; then
+                echo "# Auto-generated requirements.txt" > "$requirements_file"
+                echo "# Review and update versions as needed" >> "$requirements_file"
+                echo "" >> "$requirements_file"
+                while IFS= read -r line; do
+                    if [[ -n "$line" && ! "$line" =~ ^# ]]; then
+                        echo "$line" >> "$requirements_file"
+                    fi
+                done <<< "$imports"
+                
+                log_success "Created requirements.txt with detected packages"
+                echo "📝 Please review $requirements_file and add version constraints if needed"
+            else
+                echo "# Add your Python dependencies here" > "$requirements_file"
+                echo "# Example:" >> "$requirements_file"
+                echo "# flask>=2.0.0" >> "$requirements_file"
+                echo "# requests>=2.25.0" >> "$requirements_file"
+                log_success "Created empty requirements.txt template"
+            fi
+            echo ""
+        else
+            log_info "Skipping requirements.txt creation"
+            echo "💡 Tip: Add a requirements.txt file to ensure your dependencies are installed correctly"
+            echo ""
+        fi
+    fi
+}
+
+# Interactive function to create .env file if missing
+prompt_create_env() {
+    local source_dir="$1"
+    local env_file="$source_dir/.env"
+    
+    if [[ ! -f "$env_file" ]]; then
+        log_warning "No .env file found in $(basename "$source_dir")"
+        echo "🔐 Would you like to create a .env file for environment variables?"
+        echo "   This is useful for API keys, configuration settings, etc."
+        echo ""
+        read -p "   Create .env file? (y/N): " -n 1 -r
+        echo ""
+        
+        if [[ $REPLY =~ ^[Yy]$ ]]; then
+            # Check if template exists
+            if [[ -f "examples/.env.template" ]]; then
+                cp "examples/.env.template" "$env_file"
+                log_success "Created .env file from template"
+                echo "📝 Please edit $env_file and add your actual values"
+            else
+                cat > "$env_file" << 'EOF'
+# Environment Variables
+# Add your API keys and configuration here
+
+# Example API keys (uncomment and add your values)
+# OPENAI_API_KEY=your_openai_api_key_here
+# ANTHROPIC_API_KEY=your_anthropic_api_key_here
+
+# Example configuration
+# DEBUG=false
+# LOG_LEVEL=info
+EOF
+                log_success "Created .env file template"
+                echo "📝 Please edit $env_file and add your environment variables"
+            fi
+            echo ""
+        else
+            log_info "Proceeding without .env file"
+            echo "💡 Tip: Create a .env file to securely manage API keys and configuration"
+            echo "   You can add one later and redeploy to include environment variables"
+            echo ""
+        fi
+    fi
+}
+
+# Function to preview endpoints before deployment
+preview_endpoints() {
+    local python_file="$1"
+    local auto_detect="$2"
+    
+    if [[ "$auto_detect" != "--auto-detect" ]]; then
+        return 0  # Skip preview if not using auto-detect
+    fi
+    
+    log_info "Analyzing endpoints..."
+    
+    # Run a quick Python analysis to show function signatures
+    local preview_output=$(python3 -c "
+import ast
+import inspect
+import sys
+
+try:
+    with open('$python_file', 'r') as f:
+        content = f.read()
+        tree = ast.parse(content)
+    
+    functions = []
+    for node in ast.walk(tree):
+        if isinstance(node, ast.FunctionDef) and not node.name.startswith('_'):
+            # Determine HTTP method based on function characteristics
+            args = [arg.arg for arg in node.args.args]
+            arg_count = len(args)
+            
+                         # Simple heuristic: functions with multiple complex params are POST
+             if arg_count > 1 or any('data' in arg.lower() or 'request' in arg.lower() or 'body' in arg.lower() for arg in args):
+                 method = 'POST'
+                 endpoint = '/' + node.name.replace('_', '-')
+             else:
+                 method = 'GET'
+                 query_params = [arg + '=' for arg in args] if args else []
+                 endpoint = '/' + node.name.replace('_', '-') + ('?' + '&'.join(query_params) if query_params else '')
+            
+            # Get function signature for display
+            arg_strs = []
+            for i, arg in enumerate(node.args.args):
+                if i < len(node.args.defaults):
+                    default_idx = i - (len(node.args.args) - len(node.args.defaults))
+                    if default_idx >= 0:
+                        arg_strs.append(f'{arg.arg}=default')
+                    else:
+                        arg_strs.append(arg.arg)
+                else:
+                    arg_strs.append(arg.arg)
+            
+                                      signature = '(' + ', '.join(arg_strs) + ')'
+            functions.append((method, endpoint, signature, node.name))
+    
+         if functions:
+         for method, endpoint, signature, func_name in functions:
+             print('   ' + method.ljust(4) + ' ' + endpoint.ljust(30) + ' # ' + func_name + signature)
+     else:
+         print('   No public functions found (functions starting with _ are ignored)')
+        
+ except Exception as e:
+     print('   Error analyzing file: ' + str(e), file=sys.stderr)
+" 2>/dev/null)
+    
+    if [[ -n "$preview_output" ]]; then
+        echo ""
+        echo "🚀 Deployment Preview"
+        echo "===================="
+        echo ""
+        echo "📱 App Name: $(basename "$python_file" .py | tr '_' '-')"
+        echo "🌐 URL: https://$(basename "$python_file" .py | tr '_' '-').fly.dev"
+        echo ""
+        echo "📡 Detected Endpoints:"
+        echo "$preview_output"
+        echo ""
+        
+        local source_dir="$(dirname "$(realpath "$python_file")")"
+        local env_file="$source_dir/.env"
+        local requirements_file="$source_dir/requirements.txt"
+        
+        if [[ -f "$env_file" ]]; then
+            local env_count=$(grep -c "^[A-Z_][A-Z0-9_]*=" "$env_file" 2>/dev/null || echo "0")
+            echo "🔐 Environment Variables: $env_count found"
+        else
+            echo "🔐 Environment Variables: None"
+        fi
+        
+        if [[ -f "$requirements_file" ]]; then
+            local dep_count=$(grep -v "^#" "$requirements_file" | grep -v "^$" | wc -l 2>/dev/null || echo "0")
+            dep_count=$((dep_count))
+            echo "📦 Dependencies: $dep_count packages"
+        else
+            echo "📦 Dependencies: Using Python standard library only"
+        fi
+        
+        echo ""
+        read -p "🤔 Proceed with deployment? (Y/n): " -n 1 -r
+        echo ""
+        
+        if [[ $REPLY =~ ^[Nn]$ ]]; then
+            log_info "Deployment cancelled by user"
+            exit 0
+        fi
+    else
+        echo ""
+        echo "⚠️  Could not preview endpoints"
+        echo "   Continuing with deployment..."
+        echo ""
+    fi
+}
+
 # Show usage
 show_usage() {
     cat << EOF
@@ -149,6 +379,14 @@ deploy_python_file_regular() {
     fi
     
     log_info "Deploying $python_file (regular mode - using flyctl)..."
+    
+    # Interactive setup for missing files
+    local source_dir="$(dirname "$abs_python_file")"
+    prompt_create_requirements "$source_dir" "$abs_python_file"
+    prompt_create_env "$source_dir"
+    
+    # Preview endpoints if using auto-detect
+    preview_endpoints "$abs_python_file" "$auto_detect_arg"
     
     # Create temporary directory for build output
     local temp_dir="$(mktemp -d)"
@@ -301,6 +539,14 @@ deploy_python_file_preauth() {
     fi
     
     log_info "Deploying $python_file (pre-authenticated mode - no flyctl needed)..."
+    
+    # Interactive setup for missing files
+    local source_dir="$(dirname "$abs_python_file")"
+    prompt_create_requirements "$source_dir" "$abs_python_file"
+    prompt_create_env "$source_dir"
+    
+    # Preview endpoints if using auto-detect
+    preview_endpoints "$abs_python_file" "$auto_detect_arg"
     
     # Create temporary directory for build output
     local temp_dir="$(mktemp -d)"
