@@ -50,6 +50,7 @@ getmethatdawg deploy my_agent.py --pre-auth
 
 ### 🚀 **Core Features**
 - **🔍 Auto-Detection** - No decorators needed, automatically detects functions as API endpoints
+- **🎯 Interactive Setup** - Smart prompts for requirements.txt, .env files, and deployment preview
 - **🔐 Seamless Secrets** - Automatic `.env` file handling with encrypted secrets management
 - **🤖 AI-Ready** - Perfect for CrewAI, LangChain, and other AI frameworks
 - **⚡ Zero Config** - From Python file to live API in one command
@@ -134,6 +135,66 @@ getmethatdawg deploy my_agent.py --pre-auth --auto-detect
   GET  /hello-world
   POST /analyze-data
 ```
+
+## 🎯 Interactive Features (NEW)
+
+GetMeThatDawg now includes smart interactive features to streamline your deployment experience:
+
+### 📋 **Auto-Generate requirements.txt**
+If no requirements.txt is found, getmethatdawg will offer to create one:
+
+```bash
+⚠️ No requirements.txt found in examples
+🤔 Would you like to auto-generate a requirements.txt file?
+   This will analyze your Python file for imports and create a basic requirements.txt
+
+   Generate requirements.txt? (y/N): y
+ℹ Analyzing Python imports...
+✅ Created requirements.txt with detected packages
+📝 Please review requirements.txt and add version constraints if needed
+```
+
+### 🔐 **Auto-Create .env Template**
+Missing environment variables? We'll help you set up a secure .env file:
+
+```bash
+⚠️ No .env file found in examples
+🔐 Would you like to create a .env file for environment variables?
+   This is useful for API keys, configuration settings, etc.
+
+   Create .env file? (y/N): y
+✅ Created .env file from template
+📝 Please edit .env and add your actual values
+```
+
+### 🚀 **Deployment Preview**
+Before deploying, see exactly what endpoints will be created:
+
+```bash
+🚀 Deployment Preview
+====================
+
+📱 App Name: demo-agent
+🌐 URL: https://demo-agent.fly.dev
+
+📡 Detected Endpoints:
+   GET  /hello-world?name=             # hello_world(name=default)
+   GET  /generate-quote                # generate_quote()
+   POST /analyze-text                  # analyze_text(text, sentiment)
+   POST /create-task                   # create_task(title, description, priority, due_date)
+   GET  /get-weather?city=             # get_weather(city=default)
+
+🔐 Environment Variables: 3 found
+📦 Dependencies: 5 packages
+
+🤔 Proceed with deployment? (Y/n):
+```
+
+**Features:**
+- **Smart HTTP Method Detection** - GET for simple queries, POST for complex operations
+- **Parameter Preview** - See exactly what parameters each endpoint expects
+- **Resource Summary** - Count of environment variables and dependencies
+- **Deployment Confirmation** - Final chance to review before going live
 
 ## 🤖 AI Agent Examples
 

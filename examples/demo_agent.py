@@ -7,6 +7,8 @@ Demonstrates auto-detection and interactive setup features
 import json
 import random
 from datetime import datetime
+import requests  # External dependency for HTTP requests
+import pandas as pd  # External dependency for data analysis
 
 
 def hello_world(name: str = "World"):
