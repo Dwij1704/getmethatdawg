@@ -356,7 +356,7 @@ EOF
 
 # Show version
 show_version() {
-    echo "getmethatdawg version 0.0.1"
+    echo "getmethatdawg version 0.0.2"
     echo "Zero-config deploy for Python agents"
     echo "Supports both regular and pre-authenticated modes"
 }
