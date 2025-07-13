@@ -38,8 +38,19 @@ class GetMeThatDawgBuilder:
         self.endpoints: List[Endpoint] = []
         self.auto_detected_endpoints: List[AutoDetectedEndpoint] = []
         
+        # Check if WANDB/weave observability is enabled
+        self.wandb_enabled = self._is_wandb_enabled()
+        if self.wandb_enabled:
+            print("🐝 WANDB observability enabled - functions will be automatically tracked with weave")
+        
         # Ensure output directory exists
         self.output_dir.mkdir(parents=True, exist_ok=True)
+
+    def _is_wandb_enabled(self) -> bool:
+        """Check if WANDB observability is enabled via environment variables"""
+        # Check for WANDB_API_KEY in .env file or environment
+        env_vars = self._read_env_file()
+        return bool(env_vars.get('WANDB_API_KEY') or os.getenv('WANDB_API_KEY'))
 
     def auto_detect_endpoints(self):
         """Auto-detect functions that should be exposed as web endpoints"""
@@ -309,6 +320,20 @@ flyctl deploy --remote-only
     
     def generate_flask_app(self):
         """Generate the Flask application file"""
+        weave_init = ""
+        if self.wandb_enabled:
+            weave_init = """
+# 🐝 Initialize weave for observability (getmethatdawg auto-generated)
+try:
+    import weave
+    weave.init('getmethatdawg')
+    print("🐝 Weave observability initialized for project 'getmethatdawg'")
+except ImportError:
+    print("⚠️ Weave not available - install with: pip install weave")
+except Exception as e:
+    print(f"⚠️ Failed to initialize weave: {e}")
+"""
+        
         template = '''#!/usr/bin/env python3
 """
 Generated Flask app by getmethatdawg builder
@@ -325,7 +350,7 @@ sys.path.insert(0, '/app')
 
 # Import the user's module
 import user_module
-
+''' + weave_init + '''
 app = Flask(__name__)
 
 def extract_args_from_request(func, method):
@@ -475,6 +500,11 @@ CMD ["python", "flask_app.py"]
             # Add essential Flask requirements if not present
             essential_reqs = ["flask>=2.0.0", "gunicorn>=20.0.0"]
             
+            # Add weave for observability if WANDB is enabled
+            if self.wandb_enabled:
+                essential_reqs.append("weave")
+                print("🐝 Adding weave to requirements for WANDB observability")
+            
             lines = custom_reqs.strip().split('\n')
             existing_packages = {line.split('>=')[0].split('==')[0].split('<')[0].lower().strip() 
                                for line in lines if line.strip() and not line.strip().startswith('#')}
@@ -497,6 +527,11 @@ CMD ["python", "flask_app.py"]
                 "flask>=2.0.0",
                 "gunicorn>=20.0.0",
             ]
+            
+            # Add weave for observability if WANDB is enabled
+            if self.wandb_enabled:
+                requirements.append("weave")
+                print("🐝 Adding weave to default requirements for WANDB observability")
             
             requirements_path = self.output_dir / "requirements.txt"
             with open(requirements_path, 'w') as f:
@@ -573,11 +608,15 @@ primary_region = "iad"
         with open(self.source_file, 'r') as f:
             lines = f.readlines()
         
-        # Process lines to remove getmethatdawg imports and decorators
+        # Process lines to remove getmethatdawg imports and decorators, and add weave decorators
         processed_lines = []
         skip_next_function = False
         
-        for line in lines:
+        # Add weave import at the top if WANDB is enabled
+        if self.wandb_enabled:
+            processed_lines.append("import weave  # 🐝 Added by getmethatdawg for observability\n")
+        
+        for i, line in enumerate(lines):
             # Skip getmethatdawg imports (only if not auto-detect mode)
             if not self.auto_detect and ('import getmethatdawg' in line or 'from getmethatdawg' in line):
                 continue
@@ -586,6 +625,33 @@ primary_region = "iad"
             if not self.auto_detect and line.strip().startswith('@getmethatdawg.expose'):
                 skip_next_function = True
                 continue
+            
+            # Add @weave.op() decorator before function definitions if WANDB is enabled
+            if (self.wandb_enabled and 
+                line.strip().startswith('def ') and 
+                not line.strip().startswith('def _') and  # Skip private functions
+                not line.strip().startswith('def __')):    # Skip magic methods
+                
+                # Check if this function is in our endpoints (auto-detected or explicit)
+                func_name = line.strip().split('(')[0].replace('def ', '')
+                is_endpoint = False
+                
+                # Check auto-detected endpoints
+                for endpoint in self.auto_detected_endpoints:
+                    if endpoint.func_name == func_name:
+                        is_endpoint = True
+                        break
+                
+                # Check explicit endpoints
+                for endpoint in self.endpoints:
+                    if endpoint.func_name == func_name:
+                        is_endpoint = True
+                        break
+                
+                if is_endpoint:
+                    # Add the decorator with proper indentation
+                    indent = len(line) - len(line.lstrip())
+                    processed_lines.append(' ' * indent + "@weave.op()  # 🐝 Added by getmethatdawg for observability\n")
             
             # Add the line
             processed_lines.append(line)
