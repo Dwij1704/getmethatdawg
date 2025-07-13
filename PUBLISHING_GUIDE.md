@@ -63,7 +63,7 @@ class Getmethatdawg < Formula
   desc "Zero-config deployment for Python AI agents and web services"
   homepage "https://github.com/Dwij1704/getmethatdawg"
   url "https://github.com/Dwij1704/getmethatdawg/releases/download/v0.1.0/getmethatdawg-source.tar.gz"
-  sha256 "PUT_ACTUAL_SHA256_HERE"
+  sha256 "234b52193cbfc147b14f816c559f076440991776d1124293f0ca6d962795de62"
   license "MIT"
   
   # ... rest of formula stays the same
