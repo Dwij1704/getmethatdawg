@@ -564,15 +564,15 @@ deploy_python_file_preauth() {
     # Use the pre-authenticated builder container
     log_info "Using pre-authenticated builder container..."
     
-    # Container image (prioritize GitHub Container Registry)
-    local builder_image="ghcr.io/dwij1704/getmethatdawg-builder:authenticated"
+    # Container image (prioritize Docker Hub)
+    local builder_image="dwijptl/getmethatdawg-authenticated-builder:latest"
     
     # Check if we need to pull the latest image
     if ! docker image inspect "$builder_image" &> /dev/null; then
         log_info "Pulling pre-authenticated builder container..."
         if ! docker pull "$builder_image" 2>/dev/null; then
-            log_warning "Failed to pull from GitHub Container Registry, trying Docker Hub..."
-            builder_image="getmethatdawg/builder:authenticated"
+            log_warning "Failed to pull from Docker Hub, trying GitHub Container Registry..."
+            builder_image="ghcr.io/dwij1704/getmethatdawg-builder:authenticated"
             if ! docker pull "$builder_image" 2>/dev/null; then
                 log_error "Failed to pull pre-authenticated container. Please ensure it's available."
                 log_info "To use pre-auth mode, the project maintainer needs to build and push the authenticated container."
