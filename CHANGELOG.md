@@ -16,6 +16,38 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Nothing yet
 
+## [1.1.0] - 2024-12-07
+
+### Added
+- 🔧 **Enhanced Homebrew Support**
+  - Improved homebrew formula with better error handling
+  - Fixed PYTHONPATH environment variable initialization
+  - Better dependency checking and validation
+
+- 🚀 **Deployment Improvements** 
+  - Enhanced auto-detection reliability
+  - Better error messages for deployment failures
+  - Improved Docker builder with latest dependencies
+
+### Changed
+- 📦 **Updated Dependencies**
+  - Updated Python SDK to latest versions
+  - Improved Flask and Gunicorn configurations
+  - Better CrewAI integration and stability
+
+### Fixed
+- 🐛 **Bug Fixes**
+  - Fixed homebrew installation PYTHONPATH issue
+  - Resolved module import errors in builder
+  - Fixed command parsing in CLI scripts
+  - Improved error handling for missing dependencies
+
+### Technical Improvements
+- **Module System**: Fixed getmethatdawg module imports throughout codebase
+- **Error Handling**: Better error messages and debugging information
+- **Stability**: Improved reliability of auto-detection and deployment
+- **Documentation**: Updated examples and troubleshooting guides
+
 ## [0.1.0] - 2024-07-12
 
 ### Added
