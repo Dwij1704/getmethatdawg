@@ -16,23 +16,41 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Nothing yet
 
-## [1.3.0] - 2024-12-07
+## [0.0.1] - 2024-12-07
 
 ### Added
-- Nothing yet
+- 🚀 **Zero-Config Python Agent Deployment**
+  - Deploy Python functions as web APIs with a single command
+  - Auto-detection of functions as endpoints (no decorators needed)
+  - Dual deployment modes: Regular (flyctl) and Pre-authenticated (Docker only)
+  - Interactive setup for requirements.txt and .env files
+  - Comprehensive secrets management with automatic categorization
+
+- 🔧 **Enhanced Pre-Auth Mode**
+  - Pre-authenticated container deployment with encrypted credentials
+  - End-to-end deployment logs just like regular mode
+  - Real-time streaming of deployment progress and flyctl output
+  - Live deployment status, app creation, secrets setup, and final URLs
+  - Smart fallback to regular mode if pre-auth container unavailable
+
+- 📊 **CrewAI and AI Framework Support**
+  - Complete CrewAI multi-agent example with content creation workflow
+  - Support for OpenAI, Anthropic, Groq, and other LLM providers
+  - Automatic environment variable detection and setup
+  - Production-ready AI agent deployment examples
+
+- 🛠️ **Developer Experience**
+  - Homebrew installation support
+  - Comprehensive documentation and examples
+  - Interactive prompts for missing dependencies
+  - Deployment preview with endpoint listing
+  - Error handling and debugging tools
 
 ### Changed
-- **🚀 Enhanced Pre-Auth Mode Deployment Experience**
-  - Pre-auth mode now provides end-to-end deployment logs just like regular mode
-  - Real-time streaming of deployment progress and flyctl output
-  - Actual deployment happens inside the container (not just artifact generation)
-  - Users see live deployment status, app creation, secrets setup, and final URLs
-  - Extracts real app URL from flyctl status instead of guessing
-  - Shows parsed endpoints and deployment completion status
+- Initial release
 
 ### Fixed
-- Pre-auth mode no longer ends early with generic "check in X minutes" message
-- Pre-auth deployments now properly handle secrets and show deployment progress
+- Initial release
 
 ## [1.2.0] - 2024-12-07
 

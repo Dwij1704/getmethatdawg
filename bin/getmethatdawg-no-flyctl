@@ -89,7 +89,7 @@ EOF
 
 # Show version
 show_version() {
-    echo "getmethatdawg version 1.3.0-no-flyctl"
+    echo "getmethatdawg version 0.0.1-no-flyctl"
     echo "Zero-config deploy for Python agents"
     echo "No flyctl dependency version"
 }

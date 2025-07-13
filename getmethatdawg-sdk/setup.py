@@ -4,7 +4,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="getmethatdawg-sdk",
-    version="1.1.1",
+    version="0.0.1",
     description="Zero-config deploy SDK for Python agents",
     author="GetMeThatDawg Team",
     author_email="hello@getmethatdawg.dev",
