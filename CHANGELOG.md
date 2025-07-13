@@ -16,6 +16,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Nothing yet
 
+## [1.1.2] - 2024-12-07
+
+### Fixed
+- 🐛 **Critical Bug Fixes**
+  - Fixed unbound variable error in cleanup function during deployment
+  - Fixed homebrew version argument parsing issue (circular sourcing bug)
+  - Improved error handling in bash strict mode for better reliability
+
+### Technical Improvements
+- **Cleanup Handling**: Added proper variable checks in cleanup function
+- **Homebrew Stability**: Fixed circular sourcing issue causing argument parsing failures
+- **Error Resilience**: Better handling of edge cases in deployment cleanup
+
 ## [1.1.1] - 2024-12-07
 
 ### Fixed
