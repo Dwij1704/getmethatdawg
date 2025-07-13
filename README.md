@@ -495,5 +495,4 @@ getmethatdawg deploy your_agent.py --pre-auth
 ---
 
 **Made with ❤️ for Python developers who want to focus on building, not deploying.**
-
 [⭐ Star us on GitHub](https://github.com/Dwij1704/getmethatdawg) | [📖 Read the Docs](https://getmethatdawg.dev)
