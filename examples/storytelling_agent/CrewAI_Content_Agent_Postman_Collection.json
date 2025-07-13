@@ -1,0 +1,457 @@
+{
+  "info": {
+    "name": "CrewAI Content Creation Agent API",
+    "description": "Complete API collection for the CrewAI Content Creation Agent deployed with yoo. This collection includes all 10 auto-detected endpoints with sample requests and responses.",
+    "version": "1.0.0",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "https://ai-contentgen-crew.fly.dev",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Health Check",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/",
+          "host": ["{{baseUrl}}"],
+          "path": [""]
+        },
+        "description": "Check if the service is running and get available endpoints"
+      },
+      "response": [
+        {
+          "name": "Success Response",
+          "originalRequest": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/",
+              "host": ["{{baseUrl}}"],
+              "path": [""]
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "body": "{\n  \"endpoints\": [\n    {\"method\": \"GET\", \"path\": \"/get-environment-status\"},\n    {\"method\": \"GET\", \"path\": \"/get-crew-info\"},\n    {\"method\": \"POST\", \"path\": \"/create-content-request\"}\n  ],\n  \"service\": \"yoo-deployed-app\",\n  \"status\": \"healthy\"\n}"
+        }
+      ]
+    },
+    {
+      "name": "Get Environment Status",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/get-environment-status",
+          "host": ["{{baseUrl}}"],
+          "path": ["get-environment-status"]
+        },
+        "description": "Check which API keys are available and the current environment status"
+      },
+      "response": [
+        {
+          "name": "Success Response",
+          "originalRequest": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/get-environment-status",
+              "host": ["{{baseUrl}}"],
+              "path": ["get-environment-status"]
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "body": "{\n  \"active_llm\": \"OpenAI GPT-4o-mini\",\n  \"api_keys_status\": {\n    \"OPENAI_API_KEY\": true,\n    \"ANTHROPIC_API_KEY\": true,\n    \"GROQ_API_KEY\": true\n  },\n  \"available_services\": 8,\n  \"environment_loaded\": true,\n  \"status\": \"production\",\n  \"success\": true\n}"
+        }
+      ]
+    },
+    {
+      "name": "Get Crew Info",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/get-crew-info",
+          "host": ["{{baseUrl}}"],
+          "path": ["get-crew-info"]
+        },
+        "description": "Get information about the CrewAI agents and their capabilities"
+      },
+      "response": [
+        {
+          "name": "Success Response",
+          "originalRequest": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/get-crew-info",
+              "host": ["{{baseUrl}}"],
+              "path": ["get-crew-info"]
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "body": "{\n  \"success\": true,\n  \"crew_name\": \"Content Creation Crew\",\n  \"agents\": [\n    {\n      \"role\": \"Content Researcher\",\n      \"capabilities\": [\"web research\", \"data analysis\"]\n    },\n    {\n      \"role\": \"Content Writer\",\n      \"capabilities\": [\"creative writing\", \"storytelling\"]\n    }\n  ]\n}"
+        }
+      ]
+    },
+    {
+      "name": "Get Content Types",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/get-content-types",
+          "host": ["{{baseUrl}}"],
+          "path": ["get-content-types"]
+        },
+        "description": "Get available content types and their descriptions"
+      },
+      "response": [
+        {
+          "name": "Success Response",
+          "originalRequest": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/get-content-types",
+              "host": ["{{baseUrl}}"],
+              "path": ["get-content-types"]
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "body": "{\n  \"success\": true,\n  \"content_types\": {\n    \"blog_post\": {\n      \"name\": \"Blog Post\",\n      \"description\": \"Engaging blog articles\",\n      \"typical_length\": \"800-1200 words\"\n    },\n    \"article\": {\n      \"name\": \"Article\",\n      \"description\": \"In-depth articles\",\n      \"typical_length\": \"1000-2000 words\"\n    }\n  }\n}"
+        }
+      ]
+    },
+    {
+      "name": "Create Content Request (Main Workflow)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"topic\": \"The Future of Artificial Intelligence in Healthcare\",\n  \"content_type\": \"blog_post\",\n  \"target_audience\": \"healthcare professionals\",\n  \"tone\": \"professional\",\n  \"word_count\": 1200,\n  \"keywords\": [\"AI\", \"healthcare\", \"machine learning\", \"diagnosis\", \"treatment\"]\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/create-content-request",
+          "host": ["{{baseUrl}}"],
+          "path": ["create-content-request"]
+        },
+        "description": "Create a comprehensive content piece using all 4 CrewAI agents (Research → Write → Edit → SEO Optimize)"
+      },
+      "response": [
+        {
+          "name": "Success Response",
+          "originalRequest": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"topic\": \"AI in Healthcare\",\n  \"content_type\": \"blog_post\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/create-content-request",
+              "host": ["{{baseUrl}}"],
+              "path": ["create-content-request"]
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "body": "{\n  \"success\": true,\n  \"request_id\": \"uuid-here\",\n  \"topic\": \"AI in Healthcare\",\n  \"final_content\": \"Comprehensive blog post content...\",\n  \"research_summary\": \"Research findings...\",\n  \"seo_recommendations\": \"SEO suggestions...\",\n  \"workflow_completed\": true\n}"
+        }
+      ]
+    },
+    {
+      "name": "Get Content Status",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/get-content-status?request_id=your-request-id-here",
+          "host": ["{{baseUrl}}"],
+          "path": ["get-content-status"],
+          "query": [
+            {
+              "key": "request_id",
+              "value": "your-request-id-here"
+            }
+          ]
+        },
+        "description": "Check the status of a content creation request"
+      },
+      "response": [
+        {
+          "name": "Success Response",
+          "originalRequest": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/get-content-status?request_id=123",
+              "host": ["{{baseUrl}}"],
+              "path": ["get-content-status"],
+              "query": [
+                {
+                  "key": "request_id",
+                  "value": "123"
+                }
+              ]
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "body": "{\n  \"success\": true,\n  \"request_id\": \"123\",\n  \"status\": \"completed\",\n  \"stages\": {\n    \"research\": \"completed\",\n    \"writing\": \"completed\",\n    \"editing\": \"completed\",\n    \"seo_optimization\": \"completed\"\n  }\n}"
+        }
+      ]
+    },
+    {
+      "name": "Create Quick Content",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"topic\": \"10 Python Tips for Beginners\",\n  \"content_type\": \"blog_post\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/create-quick-content",
+          "host": ["{{baseUrl}}"],
+          "path": ["create-quick-content"]
+        },
+        "description": "Create content quickly with default settings (600 words, general audience)"
+      },
+      "response": [
+        {
+          "name": "Success Response",
+          "originalRequest": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"topic\": \"Python Tips\",\n  \"content_type\": \"blog_post\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/create-quick-content",
+              "host": ["{{baseUrl}}"],
+              "path": ["create-quick-content"]
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "body": "{\n  \"success\": true,\n  \"topic\": \"Python Tips\",\n  \"content_type\": \"blog_post\",\n  \"content\": \"Quick content here...\",\n  \"quick_mode\": true\n}"
+        }
+      ]
+    },
+    {
+      "name": "Get SEO Analysis",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"content\": \"Python is a versatile programming language widely used in data science, web development, and automation. It offers powerful libraries and frameworks that make development efficient and enjoyable.\",\n  \"target_keywords\": [\"python\", \"programming\", \"data science\", \"web development\"]\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/get-seo-analysis",
+          "host": ["{{baseUrl}}"],
+          "path": ["get-seo-analysis"]
+        },
+        "description": "Analyze content for SEO optimization opportunities"
+      },
+      "response": [
+        {
+          "name": "Success Response",
+          "originalRequest": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"content\": \"Sample content\",\n  \"target_keywords\": [\"python\"]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/get-seo-analysis",
+              "host": ["{{baseUrl}}"],
+              "path": ["get-seo-analysis"]
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "body": "{\n  \"success\": true,\n  \"analysis\": {\n    \"word_count\": 25,\n    \"seo_score\": 65,\n    \"keyword_analysis\": {\n      \"python\": {\n        \"count\": 2,\n        \"density\": 8.0\n      }\n    }\n  },\n  \"recommendations\": [\"Add more content\", \"Optimize headings\"]\n}"
+        }
+      ]
+    },
+    {
+      "name": "Get Writing Tips",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"content_type\": \"blog_post\",\n  \"target_audience\": \"developers\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/get-writing-tips",
+          "host": ["{{baseUrl}}"],
+          "path": ["get-writing-tips"]
+        },
+        "description": "Get writing tips and best practices for specific content types and audiences"
+      },
+      "response": [
+        {
+          "name": "Success Response",
+          "originalRequest": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"content_type\": \"blog_post\",\n  \"target_audience\": \"developers\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/get-writing-tips",
+              "host": ["{{baseUrl}}"],
+              "path": ["get-writing-tips"]
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "body": "{\n  \"success\": true,\n  \"content_type\": \"blog_post\",\n  \"target_audience\": \"developers\",\n  \"tips\": [\n    \"Start with a compelling headline\",\n    \"Use short paragraphs for readability\",\n    \"Include code examples\"\n  ]\n}"
+        }
+      ]
+    },
+    {
+      "name": "Create Content (Alternative Endpoint)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"topic\": \"Best Practices for RESTful API Design\",\n  \"content_type\": \"article\",\n  \"target_audience\": \"software architects\",\n  \"tone\": \"technical\",\n  \"word_count\": 1500,\n  \"keywords\": [\"REST\", \"API\", \"design\", \"best practices\", \"architecture\"]\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/create-content",
+          "host": ["{{baseUrl}}"],
+          "path": ["create-content"]
+        },
+        "description": "Alternative content creation endpoint with similar functionality"
+      },
+      "response": [
+        {
+          "name": "Success Response",
+          "originalRequest": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"topic\": \"API Design\",\n  \"content_type\": \"article\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/create-content",
+              "host": ["{{baseUrl}}"],
+              "path": ["create-content"]
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "body": "{\n  \"success\": true,\n  \"content\": \"Comprehensive article content...\",\n  \"metadata\": {\n    \"word_count\": 1500,\n    \"topic\": \"API Design\"\n  }\n}"
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Set timestamp for requests",
+          "pm.globals.set(\"timestamp\", new Date().toISOString());"
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Common tests for all requests",
+          "pm.test(\"Status code is 200\", function () {",
+          "    pm.response.to.have.status(200);",
+          "});",
+          "",
+          "pm.test(\"Response time is less than 2000ms\", function () {",
+          "    pm.expect(pm.response.responseTime).to.be.below(2000);",
+          "});",
+          "",
+          "pm.test(\"Response is JSON\", function () {",
+          "    pm.response.to.be.json;",
+          "});",
+          "",
+          "// Test for success field in response",
+          "pm.test(\"Response has success field\", function () {",
+          "    var jsonData = pm.response.json();",
+          "    pm.expect(jsonData).to.have.property('success');",
+          "});"
+        ]
+      }
+    }
+  ]
+} 

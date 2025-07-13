@@ -1,0 +1,40 @@
+#!/bin/bash
+
+# yoo-builder - Builder script for inside Docker container
+# Usage: yoo-builder <source_file> [original_name] [--auto-detect]
+
+set -euo pipefail
+
+if [[ $# -lt 1 || $# -gt 3 ]]; then
+    echo "Usage: yoo-builder <source_file> [original_name] [--auto-detect]"
+    exit 1
+fi
+
+source_file="$1"
+original_name=""
+auto_detect=""
+
+# Parse arguments
+for arg in "${@:2}"; do
+    if [[ "$arg" == "--auto-detect" ]]; then
+        auto_detect="--auto-detect"
+    elif [[ -z "$original_name" ]]; then
+        original_name="$arg"
+    fi
+done
+
+if [[ ! -f "$source_file" ]]; then
+    echo "Error: Source file '$source_file' not found"
+    exit 1
+fi
+
+# Run the Python builder with appropriate arguments
+args=("$source_file")
+if [[ -n "$original_name" ]]; then
+    args+=("$original_name")
+fi
+if [[ -n "$auto_detect" ]]; then
+    args+=("$auto_detect")
+fi
+
+exec python -m yoo.builder "${args[@]}" 

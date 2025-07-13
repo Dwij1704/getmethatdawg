@@ -1,0 +1,34 @@
+#compdef getmethatdawg
+
+# Zsh completion for getmethatdawg
+_getmethatdawg() {
+    local context state line
+    typeset -A opt_args
+
+    _arguments -C \
+        '1: :->command' \
+        '*: :->args' && return 0
+
+    case $state in
+        command)
+            _values 'getmethatdawg command' \
+                'deploy[Deploy a Python file as a web service]' \
+                '--help[Show help message]' \
+                '--version[Show version information]'
+            ;;
+        args)
+            case $line[1] in
+                deploy)
+                    _arguments \
+                        '1:python file:_files -g "*.py"' \
+                        '--auto-detect[Enable auto-detection mode]' \
+                        '--name[Specify custom app name]:app name:' \
+                        '--region[Deploy to specific region]:region:(iad ord sjc fra nrt hkg syd)' \
+                        '--requirements[Use custom requirements file]:requirements file:_files -g "*.txt"'
+                    ;;
+            esac
+            ;;
+    esac
+}
+
+_getmethatdawg "$@" 
