@@ -304,7 +304,7 @@ class Getmethatdawg < Formula
           # Cleanup function
           cleanup() {
               if [[ -n "${temp_dir:-}" ]] && [[ -d "${temp_dir:-}" ]]; then
-                  rm -rf "$temp_dir"
+              rm -rf "$temp_dir"
               fi
           }
           trap cleanup EXIT
@@ -316,33 +316,33 @@ class Getmethatdawg < Formula
            if ! docker image inspect getmethatdawg/builder:latest &> /dev/null; then
                log_warning "Builder image 'getmethatdawg/builder:latest' not found."
                log_info "Building getmethatdawg/builder image..."
-               
-               # Build the builder image from libexec
+              
+              # Build the builder image from libexec
                docker build -t getmethatdawg/builder:latest -f - "#{libexec}" << 'EOF'
       FROM python:3.11-slim
       
              WORKDIR /opt/getmethatdawg
-       
+      
        # Copy the getmethatdawg-sdk
        COPY lib/python/getmethatdawg/ ./getmethatdawg-sdk/getmethatdawg/
        COPY lib/python/getmethatdawg_sdk-0.1.0.dist-info/ ./getmethatdawg-sdk/getmethatdawg_sdk.dist-info/
-       
+      
        # Install getmethatdawg-sdk dependencies
-       RUN pip install flask gunicorn
-       
-       # Copy libexec
-       COPY libexec/ ./libexec/
-       
-       # Set up the entry point - use Python to call the builder
+      RUN pip install flask gunicorn
+      
+      # Copy libexec
+      COPY libexec/ ./libexec/
+      
+      # Set up the entry point - use Python to call the builder
        RUN echo '#!/usr/bin/env python3' > /opt/getmethatdawg/bin/getmethatdawg-builder
        RUN echo 'import sys' >> /opt/getmethatdawg/bin/getmethatdawg-builder
        RUN echo 'sys.path.insert(0, "/opt/getmethatdawg")' >> /opt/getmethatdawg/bin/getmethatdawg-builder
        RUN echo 'from getmethatdawg.builder import main' >> /opt/getmethatdawg/bin/getmethatdawg-builder
        RUN echo 'main()' >> /opt/getmethatdawg/bin/getmethatdawg-builder
        RUN chmod +x /opt/getmethatdawg/bin/getmethatdawg-builder
-       
+      
        ENV PATH="/opt/getmethatdawg/bin:$PATH"
-       
+      
        ENTRYPOINT ["/opt/getmethatdawg/bin/getmethatdawg-builder"]
       EOF
           fi
@@ -373,8 +373,8 @@ class Getmethatdawg < Formula
               docker_volumes="$docker_volumes -v $env_file:/tmp/.env:ro"
           fi
           
-                     docker run --rm \\
-               $docker_volumes \\
+          docker run --rm \\
+              $docker_volumes \\
                getmethatdawg/builder:latest /tmp/source.py "$(basename "$python_file" .py)" $auto_detect_flag
           
           # Check if build was successful
@@ -547,20 +547,75 @@ class Getmethatdawg < Formula
           
           # Run the pre-authenticated builder container
           log_info "Building and deploying with pre-authenticated container..."
-          docker run --rm \\
+          
+          # Create a deployment script that will run inside the container
+          local deploy_script="$output_dir/deploy-script.sh"
+          cat > "$deploy_script" << 'DEPLOY_EOF'
+      #!/bin/bash
+      set -euo pipefail
+      
+      echo "🔧 Building deployment artifacts..."
+      getmethatdawg-builder /tmp/source.py "$1" $2
+      
+      echo "📁 Changing to build output directory..."
+      cd /tmp/out
+      
+      echo "🚀 Starting deployment to Fly.io..."
+      
+      # Get app name from the parameter
+      APP_NAME="$1"
+      
+      # Check if fly app exists, if not create it
+      if ! flyctl apps list | grep -q "$APP_NAME"; then
+          echo "📱 Creating new Fly.io app: $APP_NAME"
+          flyctl apps create "$APP_NAME" --generate-name || true
+      fi
+      
+      # Deploy the app (check for secrets script first)
+      if [[ -f "deploy-with-secrets.sh" ]]; then
+          echo "🔐 Deploying with secrets management..."
+          chmod +x deploy-with-secrets.sh
+          ./deploy-with-secrets.sh
+      else
+          echo "🚀 Deploying without secrets..."
+          flyctl deploy --remote-only --config fly.toml --dockerfile Dockerfile
+      fi
+      
+      echo "✅ Deployment completed successfully!"
+      
+      # Get the app URL
+      APP_URL=$(flyctl status --app "$APP_NAME" | grep "Hostname" | awk '{print $2}' | head -1 || echo "$APP_NAME.fly.dev")
+      echo "🌐 App URL: https://$APP_URL"
+      
+      # Show endpoints
+      echo "📡 Available endpoints:"
+      echo "  GET  https://$APP_URL/ (health check)"
+      
+      # Parse endpoints from generated flask app (basic parsing)
+      if [[ -f "/tmp/out/flask_app.py" ]]; then
+          grep -E "@app\\.route\\(" "/tmp/out/flask_app.py" | while read -r line; do
+              if [[ "$line" =~ @app\\.route\\(\\'([^\\']+)\\',.*methods=\\[\\'([^\\']+)\\' ]]; then
+                  path="${BASH_REMATCH[1]}"
+                  method="${BASH_REMATCH[2]}"
+                  echo "  ${method}  https://$APP_URL$path"
+              fi
+          done
+      fi
+      DEPLOY_EOF
+          chmod +x "$deploy_script"
+          
+          # Run the container with the deployment script, streaming output in real-time
+          if docker run --rm \\
               $docker_volumes \\
-              "$builder_image" /tmp/source.py "$(basename "$python_file" .py)" $auto_detect_flag
-          
-          # The container handles everything including deployment!
-          log_success "Deployment completed using pre-authenticated container!"
-          
-          # Try to determine the app URL
-          local app_name="$(basename "$python_file" .py | tr '_' '-')"
-          local app_url="$app_name.fly.dev"
-          
-          echo -e "${GREEN}🌐 https://$app_url${NC}"
-          log_info "Your app should be available at the URL above"
-          log_info "If this is a new deployment, it may take a few minutes to become available"
+              -v "$deploy_script:/tmp/deploy.sh:ro" \\
+              "$builder_image" \\
+              /tmp/deploy.sh "$(basename "$python_file" .py | tr '_' '-')" "$auto_detect_flag"
+          then
+              log_success "🎉 Deployment completed successfully!"
+          else
+              log_error "❌ Deployment failed"
+              exit 1
+          fi
       }
       
       # Execute the deployment

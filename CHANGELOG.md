@@ -16,6 +16,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Nothing yet
 
+## [1.3.0] - 2024-12-07
+
+### Added
+- Nothing yet
+
+### Changed
+- **🚀 Enhanced Pre-Auth Mode Deployment Experience**
+  - Pre-auth mode now provides end-to-end deployment logs just like regular mode
+  - Real-time streaming of deployment progress and flyctl output
+  - Actual deployment happens inside the container (not just artifact generation)
+  - Users see live deployment status, app creation, secrets setup, and final URLs
+  - Extracts real app URL from flyctl status instead of guessing
+  - Shows parsed endpoints and deployment completion status
+
+### Fixed
+- Pre-auth mode no longer ends early with generic "check in X minutes" message
+- Pre-auth deployments now properly handle secrets and show deployment progress
+
 ## [1.2.0] - 2024-12-07
 
 ### Added
