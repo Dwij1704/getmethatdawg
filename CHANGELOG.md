@@ -16,6 +16,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Nothing yet
 
+## [1.1.1] - 2024-12-07
+
+### Fixed
+- 🐛 **Critical Bug Fix**
+  - Fixed PYTHONPATH unbound variable error in homebrew installation
+  - Improved environment variable handling with proper bash parameter expansion
+  - Ensures seamless installation for all users without manual fixes
+
+### Technical Improvements
+- **Homebrew Formula**: Fixed `${PYTHONPATH:-}` parameter expansion for unset variables
+- **User Experience**: Eliminates need for manual post-installation fixes
+- **Reliability**: Ensures consistent behavior across different shell environments
+
 ## [1.1.0] - 2024-12-07
 
 ### Added

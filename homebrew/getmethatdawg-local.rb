@@ -3,7 +3,7 @@ class GetmethatdawgLocal < Formula
   homepage "https://github.com/Dwij1704/getmethatdawg"
   # For local testing, we'll use the current directory
   url "file://#{Dir.pwd}"
-  version "1.1.0"
+  version "1.1.1"
   license "MIT"
 
   depends_on "python@3.11"

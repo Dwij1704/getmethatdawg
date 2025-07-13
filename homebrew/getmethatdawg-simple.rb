@@ -14,7 +14,7 @@ class GetmethatdawgSimple < Formula
       
       case "${1:-}" in
           --version|-v)
-              echo "getmethatdawg version 1.1.0"
+              echo "getmethatdawg version 1.1.1"
               echo "Zero-config deploy for Python agents"
               echo "Installed via Homebrew (LOCAL TEST)"
               echo "From directory: #{prefix}"

@@ -161,7 +161,7 @@ install-deps: ## Install development dependencies
 	@echo "$(GREEN)Development dependencies installed!$(NC)"
 
 version: ## Show version information
-	@echo "getmethatdawg version 1.1.0"
+	@echo "getmethatdawg version 1.1.1"
 	@echo "Zero-config deployment for Python AI agents"
 	@echo ""
 	@echo "Components:"
